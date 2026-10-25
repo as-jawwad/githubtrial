@@ -1,0 +1,54 @@
+/* V6 Public Portfolio — profile integrated, compact header and consistent Sharing Portal */
+:root{--v6-line:#dfe9ed;--v6-ink:#173747}
+/* Keep only the six content links in a tidy single row on larger screens. */
+.topbar .topbar-inner{display:flex;align-items:center;gap:20px!important;min-height:74px}
+.topbar .brand{flex:0 0 auto;min-width:0;white-space:nowrap}
+.topbar .topnav{display:flex;flex:1 1 auto;align-items:center;justify-content:center;flex-wrap:nowrap;gap:clamp(11px,1.6vw,25px);min-width:0}
+.topbar .topnav a{white-space:nowrap;font-size:clamp(11px,.85vw,13px);font-weight:720;text-decoration:none;padding:8px 0}
+.topbar .topnav a:hover,.topbar .topnav a.is-current{color:var(--student-accent)!important}
+.topbar .nav-actions{flex:none;margin-left:0}
+/* The profile always includes facts, education and slideshow side by side. */
+.about-panel .v13-about-lower{display:grid!important;grid-template-columns:minmax(0,.99fr) minmax(0,1.01fr)!important;gap:clamp(16px,2vw,28px);align-items:start;margin-top:19px}
+.about-panel .v13-facts{width:100%!important;min-width:0;max-width:none!important}
+.about-panel .v13-slideshow{width:100%;min-width:0;margin:0!important}
+.about-panel .v13-slideshow .slideshow{width:100%;aspect-ratio:4/3;max-height:440px}
+.about-panel .v16-education{margin-top:14px;max-width:100%!important;width:100%!important}
+.about-panel .v16-education-grid{grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:8px}
+.about-panel .v28-certifications{margin-top:12px;max-width:100%!important;width:100%!important}
+/* Never display gallery and education as standalone sections. */
+#v4-education-section,#v4-certifications-section,#v4-gallery-section{display:none!important}
+.about-panel .slideshow-block[hidden],.about-panel .v16-education[hidden],.about-panel #certification-list[hidden]{display:none!important}
+/* Public shared links use website contact button treatment. */
+.contact-links .v6-icon-fallback{font-weight:800;font-size:15px}
+.contact-links .brand-icon img{object-fit:contain}
+/* Match Sharing header, typography, spacing and switch with index.html. */
+body[data-page="sharing"] .sharing-page{padding-top:clamp(30px,4vw,55px);padding-bottom:85px}
+body[data-page="sharing"] .sharing-page h1{font-size:clamp(28px,3.2vw,42px);letter-spacing:-.045em;margin:0 0 8px}
+body[data-page="sharing"] .share-intro{font-size:14px;line-height:1.6;color:#6f8490;margin:0 0 26px}
+body[data-page="sharing"] .sharing-category{margin:26px 0 38px}
+body[data-page="sharing"] .sharing-category h2{font-size:clamp(22px,2vw,29px);margin:0 0 16px}
+body[data-page="sharing"] .sharing-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:19px;align-items:start}
+body[data-page="sharing"] .sharing-card{min-width:0;min-height:0;border-radius:13px;border:1px solid #dce6e8;box-shadow:none}
+body[data-page="sharing"] .sharing-cover{position:relative;aspect-ratio:16/9;max-height:225px;overflow:hidden;background:#edf6f4;font-size:32px;line-height:1}
+body[data-page="sharing"] .sharing-cover img{display:block;position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+body[data-page="sharing"] .sharing-cover-fallback{display:grid;place-items:center;color:var(--student-accent);font-size:33px;background:color-mix(in srgb,var(--student-accent),white 91%)}
+body[data-page="sharing"] .sharing-card-body{padding:16px 18px;gap:8px}
+body[data-page="sharing"] .sharing-card-body h3{font-size:16px;line-height:1.35}
+body[data-page="sharing"] .sharing-card-body p{font-size:13px;line-height:1.55}
+body[data-page="sharing"] .sharing-actions a{font-size:12px;padding:8px 11px}
+@media (max-width:1100px){.topbar .topnav{gap:11px}.topbar .topnav a{font-size:11px}.topbar .brand .v12-brand-title{font-size:15px}}
+@media (max-width:870px){
+ .topbar .topbar-inner{flex-wrap:wrap}
+ .topbar .topnav{order:3;flex:0 0 100%;justify-content:flex-start;flex-wrap:wrap;gap:7px 15px;margin:0 0 9px}
+ .topbar .topnav a{font-size:12px;padding:4px 0}
+ .topbar .nav-actions{margin-left:auto}
+ .about-panel .v13-about-lower{grid-template-columns:1fr!important}
+ body[data-page="sharing"] .sharing-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:590px){
+ .topbar .topbar-inner{gap:8px!important}
+ .topbar .topnav{margin-bottom:5px}
+ .about-panel .v16-education-grid{grid-template-columns:repeat(auto-fit,minmax(125px,1fr))}
+ body[data-page="sharing"] .sharing-grid{grid-template-columns:1fr}
+ body[data-page="sharing"] .sharing-page{padding-top:25px}
+}

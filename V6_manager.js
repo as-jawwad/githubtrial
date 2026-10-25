@@ -1,0 +1,325 @@
+'use strict';
+/* AS.Portfolio Maker Student Edition V5 — by as.jawwad.
+   No credentials are persisted; all private JSON/media are encrypted before upload.
+   Only contents-authorized account owner can write to the two repositories. */
+const $=id=>document.getElementById(id);
+const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const safeLink=x=>{try{const u=new URL(String(x||''),location.href);return /^https?:$/.test(u.protocol)?u.href:''}catch{return ''}};
+const enc=new TextEncoder(),dec=new TextDecoder();
+const bin64=a=>{let s='';for(let i=0;i<a.length;i+=8192)s+=String.fromCharCode(...a.subarray(i,i+8192));return btoa(s)};
+const deb64=s=>{const a=atob(String(s||'').replace(/\s/g,'')),b=new Uint8Array(a.length);for(let i=0;i<b.length;i++)b[i]=a.charCodeAt(i);return b};
+const clone=x=>JSON.parse(JSON.stringify(x));
+const uid=()=>{if(typeof crypto.randomUUID==='function')return crypto.randomUUID();const bytes=crypto.getRandomValues(new Uint8Array(16));return [...bytes].map(x=>x.toString(16).padStart(2,'0')).join('')};
+const blank=()=>({version:5,sections:[],sharing:{categories:[]},translationMeta:{},profile:{name:'Your Name',title:'Student',tagline:'',about:'',location:'',institution:'',institutionUrl:'',avatar:'',banner:'',education:{},certifications:[],contacts:[],en:{}},experiences:[],projects:[],publications:[],otherActivities:[],slides:[]});
+const privateKeys=['email','phone','studentId','birthDate','address','gpa'];
+const publishProfile=['name','title','tagline','about','location','institution','institutionUrl','institutionIcon','avatar','banner','brandingRound','brandingSquare','education','certifications','contacts','themeColor','linkedin','instagram','youtube','scholar','orcid','en'];
+const field={name:['Full name','text'],title:['Title / Role','text'],tagline:['Tagline','textarea'],about:['About me','textarea'],location:['Location','text'],institution:['Institution','text'],institutionUrl:['Institution URL','url'],role:['Role / Position','text'],organization:['Organization','text'],companyWebsite:['Organization website','url'],companyIcon:['Organization logo','image'],period:['Period (e.g. 2024–Present)','text'],summary:['Summary','textarea'],contributions:['Contributions (one per line)','lines'],titleItem:['Title','text'],description:['Description','textarea'],category:['Category','text'],partnerName:['Partner / Client','text'],partnerLogo:['Partner logo','image'],cover:['Cover image','image'],year:['Year','text'],outputs:['Outputs','textarea'],model:['Model / Tool','text'],journal:['Journal / Publisher','text'],journalIcon:['Journal logo','image'],authors:['Authors','text'],url:['Link / URL','url'],publicationDate:['Publication date (YYYY-MM-DD)','text'],organizer:['Organizer','text'],organizerWebsite:['Organizer website','url'],organizerIcon:['Organizer logo','image'],certificateUrl:['Certificate URL','url'],certificateTitle:['Certificate title','text'],features:['Details (one per line)','lines'],startYear:['Start year','text'],endYear:['End year','text'],startMonth:['Start month 1-12','text'],endMonth:['End month 1-12','text'],currentlyActive:['Still active','checkbox'],logo:['Logo / image','image'],icon:['Contact icon','image'],nameEn:['Name in English','text'],nameCert:['Certificate name','text'],issuer:['Issued by','text'],score:['Score (optional)','text'],major:['Field of study','text'],majorEn:['Field in English','text'],email:['Email (private)','email'],phone:['Phone (private)','text'],studentId:['Student ID / NIM (private)','text'],birthDate:['Date of birth (private)','text'],address:['Address (private)','textarea'],gpa:['GPA (private)','text']};
+const configs={
+ experiences:{title:'Experience',sub:'Drag untuk mengurutkan. Belum disimpan ke GitHub sampai klik Save atau Publish.',fields:['role','organization','companyWebsite','companyIcon','location','period','startYear','startMonth','endYear','endMonth','currentlyActive','summary','contributions'],en:['role','summary','contributions'],gallery:true,main:'role',detail:'organization'},
+ projects:{title:'Projects',sub:'Proyek, kepanitiaan, riset, dan portofolio.',fields:['titleItem','description','category','partnerName','partnerLogo','cover','period','year','role','model','outputs','features'],en:['title','description','role','outputs'],gallery:true,main:'title',detail:'partnerName'},
+ publications:{title:'Publications',sub:'Publikasi atau karya tulis.',fields:['titleItem','journal','journalIcon','authors','year','publicationDate','url'],en:['title'],gallery:false,main:'title',detail:'journal'},
+ otherActivities:{title:'Activities',sub:'Organisasi, kepanitiaan, kegiatan sukarela, dan prestasi.',fields:['titleItem','type','role','organizer','organizerWebsite','organizerIcon','location','period','description','certificateUrl','features'],en:['title','role','description'],gallery:true,main:'title',detail:'organizer'},
+ certifications:{title:'Certifications',sub:'Sertifikat dan penghargaan.',fields:['nameCert','nameEn','issuer','year','score','url','logo'],en:[],gallery:false,main:'name',detail:'issuer'},
+ slides:{title:'Gallery',sub:'Foto yang ditampilkan dalam slideshow halaman depan.',fields:['titleItem','url'],en:[],gallery:false,main:'title',detail:'url',slide:true},
+ contacts:{title:'Contacts',sub:'Nama platform dan URL. Ikon mengikuti website secara otomatis; Anda juga dapat upload ikon sendiri.',fields:['name','url','icon'],en:[],gallery:false,main:'name',detail:'url'}
+};
+const meta={sections:['Sections','Atur nama, urutan, dan status tampil.'],bilingual:['Bilingual','Terjemahan Indonesia → English terpusat.'],sharing:['Sharing Portal','Kategori dan card untuk berbagi PDF, gambar, dan link.'],profile:['Profile','Identitas yang tampil pada website publik.'],education:['Education','Pendidikan Sarjana, Magister, atau Doktor.'],private:['Private CV Data','Hanya disimpan dalam bentuk terenkripsi di repository privat.'],settings:['Settings','Akses repository, kunci data, dan download CV ATS.']};
+let auth='',owner='',publicRepo='',privateRepo='',publicBranch='',privateBranch='',cryptKey=null,site=blank(),privateCV={},activePage='profile',busy=false,unsaved=false,publicSha=null,privateDraftSha=null,privateCvSha=null,storedSite=null;
+// Baselines prevent pointless repeat commits and permit safe recovery from stale SHA responses.
+let savedDraftBaseline=null,savedCVBaseline='{}',requestSerial=0;
+const assetCache=new Map(),pendingImages=new Map(),mediaSha=new Map();
+const apiBase='https://api.github.com';
+const filePath=(repo,path)=>`/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/contents/${path.split('/').map(encodeURIComponent).join('/')}`;
+const repoPath=repo=>`/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}`;
+const msg=(text,type='success')=>{$('noticeArea').innerHTML=`<div class="${type==='error'?'fail':type==='loading'?'loading-bar':'success'}">${esc(text)}</div>`;};
+const clearMsg=()=>{$('noticeArea').textContent='';};
+function markDirty(){unsaved=true;$('draftBadge').textContent='Unsaved changes';$('draftBadge').className='draft-badge unsaved';$('headerStatus').textContent='Unsaved';}
+function setBusy(on,label='Processing...'){busy=on;['topSave','topPublish'].forEach(id=>$(id).disabled=on);$('draftBadge').textContent=on?label:(unsaved?'Unsaved changes':'All changes saved');$('draftBadge').className='draft-badge '+(on?'busy':unsaved?'unsaved':'');}
+function cleanName(v){if(!/^[A-Za-z0-9_.-]+$/.test(v)||v.length>100)throw Error('Nama repository tidak valid.');return v;}
+async function gh(method,path,body){const opt={method,cache:'no-store',headers:{Accept:'application/vnd.github+json',Authorization:`Bearer ${auth}`,'X-GitHub-Api-Version':'2022-11-28'}};if(body!==undefined){opt.headers['Content-Type']='application/json';opt.body=JSON.stringify(body)}const r=await fetch(apiBase+path,opt);if(r.status===404&&method==='GET'&&path.includes('/contents/'))return null;let data={};try{data=await r.json()}catch{}if(!r.ok)throw Error(`GitHub ${r.status}: ${data.message||'API error'}`);return data}
+async function getFile(repo,path){const uri=filePath(repo,path)+'?ref='+encodeURIComponent(repo===publicRepo?publicBranch:privateBranch)+'&_fresh='+Date.now().toString(36)+'_'+(++requestSerial);const d=await gh('GET',uri);if(!d)return null;if(d.type!=='file')throw Error('Bukan file biasa: '+path);
+ if(d.encoding==='base64'&&typeof d.content==='string'&&d.content)return {sha:d.sha,bytes:deb64(d.content)};
+ // GitHub Contents API can omit base64 content for files above 1 MB. Fetch RAW through the same authenticated API.
+ if(d.size>100*1024*1024)throw Error('Ukuran file di luar batas GitHub: '+path);
+ const response=await fetch(apiBase+uri+'&_raw=1',{method:'GET',cache:'no-store',headers:{Accept:'application/vnd.github.raw+json',Authorization:'Bearer '+auth,'X-GitHub-Api-Version':'2022-11-28'}});
+ if(!response.ok)throw Error('Gagal membaca file besar ('+response.status+'): '+path);
+ const contentType=response.headers.get('content-type')||'';
+ if(contentType.includes('json')){const payload=await response.json();if(payload.encoding==='base64'&&payload.content)return {sha:d.sha,bytes:deb64(payload.content)};throw Error('GitHub tidak memberikan RAW file: '+path)}
+ return {sha:d.sha,bytes:new Uint8Array(await response.arrayBuffer())};}
+
+async function readJson(repo,path){const f=await getFile(repo,path);return f?{sha:f.sha,data:JSON.parse(dec.decode(f.bytes))}:null}
+async function putBytes(repo,path,bytes,sha,message){const body={message,content:bin64(bytes),branch:repo===publicRepo?publicBranch:privateBranch};if(sha)body.sha=sha;const d=await gh('PUT',filePath(repo,path),body);return d.content.sha}
+async function putJson(repo,path,obj,sha,message){return putBytes(repo,path,enc.encode(JSON.stringify(obj,null,2)+'\n'),sha,message)}
+async function derive(password,salt){const source=await crypto.subtle.importKey('raw',enc.encode(password),'PBKDF2',false,['deriveKey']);return crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:350000,hash:'SHA-256'},source,{name:'AES-GCM',length:256},false,['encrypt','decrypt'])}
+async function encryptPayload(payload,kind){const iv=crypto.getRandomValues(new Uint8Array(12)),additionalData=enc.encode('ASPM-V1:'+kind),ciphertext=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv,additionalData},cryptKey,payload));return {format:'ASPM-V1-AES-GCM',kind,iv:bin64(iv),ciphertext:bin64(ciphertext)}}
+async function decryptPayload(record,kind){if(record?.format!=='ASPM-V1-AES-GCM'||record.kind!==kind)throw Error('Format data privat salah.');try{return new Uint8Array(await crypto.subtle.decrypt({name:'AES-GCM',iv:deb64(record.iv),additionalData:enc.encode('ASPM-V1:'+kind)},cryptKey,deb64(record.ciphertext)))}catch{throw Error('Password/kunci enkripsi tidak cocok atau file telah diubah. Jangan Save atau Publish sebelum pulih.') }}
+const encryptJSON=(obj,kind)=>encryptPayload(enc.encode(JSON.stringify(obj)),kind);
+const decryptJSON=async(obj,kind)=>JSON.parse(dec.decode(await decryptPayload(obj,kind)));
+async function connect(e){e.preventDefault();const btn=$('connectButton'),err=$('connectError');err.hidden=true;btn.disabled=true;let accepted=false;
+ try{
+  const t=$('githubToken').value.trim(),pwd=$('passphrase').value,pr=cleanName($('publicRepo').value.trim()),vr=cleanName($('privateRepo').value.trim());if(!t||pwd.length<16)throw Error('Masukkan token dan password enkripsi minimal 16 karakter.');auth=t;
+  const u=await gh('GET','/user');if(!u?.login)throw Error('Token GitHub tidak dikenali.');owner=u.login;publicRepo=pr;privateRepo=vr;if(pr===vr)throw Error('Repository Public dan Private harus berbeda.');
+  const checkRepo=async(repo,label)=>{try{return await gh('GET',repoPath(repo))}catch(ex){throw Error(label+' repository "'+repo+'" tidak bisa diakses. Periksa nama repository, akun token, dan pilihan repo saat membuat token. '+ex.message)}};
+  const [pub,priv]=await Promise.all([checkRepo(publicRepo,'Public'),checkRepo(privateRepo,'Private')]);
+  if(pub.owner?.login?.toLowerCase()!==owner.toLowerCase()||priv.owner?.login?.toLowerCase()!==owner.toLowerCase())throw Error('Kedua repository harus dimiliki akun yang terhubung.');
+  if(pub.private)throw Error('Repository website harus Public agar GitHub Pages Gratis berfungsi.');
+  if(!priv.private)throw Error('Repository draft HARUS Private. Ubah visibilitasnya dahulu sebelum connect.');
+  if((pub.permissions&&pub.permissions.push===false)||(priv.permissions&&priv.permissions.push===false))throw Error('Token harus memiliki Contents: Read and write pada kedua repository.');
+  publicBranch=pub.default_branch;privateBranch=priv.default_branch;
+  const live=await readJson(publicRepo,'site.json');if(!live)throw Error('site.json tidak ditemukan. Upload semua file Student Edition ke repository Public terlebih dahulu.');publicSha=live.sha;storedSite=live.data;
+  // Read existing vault before creating anything: never initialize over a missing/corrupt vault.
+  const vault=await readJson(privateRepo,'vault.json');if(vault){if(vault.data.format!=='ASPM-V1-VAULT')throw Error('vault.json tidak dikenali.');cryptKey=await derive(pwd,deb64(vault.data.salt));const verify=dec.decode(await decryptPayload(vault.data.check,'vault-check'));if(verify!=='ASPM-STUDENT-VAULT-V1')throw Error('Password enkripsi tidak cocok.');}
+  else {const existingDraft=await readJson(privateRepo,'draft.enc.json');const existingCV=await readJson(privateRepo,'cv.enc.json');if(existingDraft||existingCV)throw Error('Vault hilang tetapi data terenkripsi ada. Dihentikan untuk mencegah kehilangan kunci.');
+   const salt=crypto.getRandomValues(new Uint8Array(16));cryptKey=await derive(pwd,salt);const check=await encryptPayload(enc.encode('ASPM-STUDENT-VAULT-V1'),'vault-check');await putJson(privateRepo,'vault.json',{format:'ASPM-V1-VAULT',salt:bin64(salt),kdf:'PBKDF2-SHA256',iterations:350000,check},null,'Initialize encrypted portfolio vault');}
+  const [draft,cv]=await Promise.all([readJson(privateRepo,'draft.enc.json'),readJson(privateRepo,'cv.enc.json')]);
+  privateDraftSha=draft?.sha||null;privateCvSha=cv?.sha||null;site=draft?await decryptJSON(draft.data,'portfolio-draft'):live.data;privateCV=cv?await decryptJSON(cv.data,'private-cv'):{};
+  // Strip academic fields loaded from any mistaken source. Only safe, whitelisted values go public.
+  site=sanitize(site);savedDraftBaseline=draft?JSON.stringify(site):null;savedCVBaseline=JSON.stringify(privateCV);accepted=true;$('githubToken').value='';$('passphrase').value='';$('connectView').hidden=true;$('appView').hidden=false;
+  $('signedUser').textContent='@'+owner;$('signedRepos').textContent=publicRepo+' / '+privateRepo;$('headerStatus').textContent='Connected';
+  $('siteLink').href=`https://${owner.toLowerCase()}.github.io/${publicRepo.toLowerCase()===owner.toLowerCase()+'.github.io'?'':encodeURIComponent(publicRepo)+'/'}index.html`;
+  $('topSave').disabled=false;$('topPublish').disabled=false;v4Ensure();v4InitTranslationMeta();v4Sidebar();render('profile');msg('Terhubung dengan GitHub Anda. Semua edit disimpan lokal terlebih dahulu.');
+ }catch(ex){err.hidden=false;err.textContent=ex.message;cryptKey=null;auth='';owner='';if(!accepted){$('connectView').hidden=false;$('appView').hidden=true;}}finally{btn.disabled=false;if(!accepted){$('githubToken').value='';$('passphrase').value='';}}
+}
+function sanitize(raw){const d=blank();if(!raw||typeof raw!=='object')return d;const p=raw.profile||{};for(const k of publishProfile)if(Object.hasOwn(p,k))d.profile[k]=clone(p[k]);for(const name of ['experiences','projects','publications','otherActivities','slides'])d[name]=Array.isArray(raw[name])?clone(raw[name]):[];if(Array.isArray(raw.sections))d.sections=clone(raw.sections);if(raw.sharing&&typeof raw.sharing==='object')d.sharing=clone(raw.sharing);if(raw.translationMeta&&typeof raw.translationMeta==='object')d.translationMeta=clone(raw.translationMeta);if(!Array.isArray(d.profile.certifications))d.profile.certifications=[];if(!Array.isArray(d.profile.contacts))d.profile.contacts=[];if(typeof d.profile.en!=='object'||!d.profile.en)d.profile.en={};return d}
+function resolvePath(path){if(!path)return '';if(assetCache.has(path))return assetCache.get(path);return path}
+async function loadPrivatePreview(path,img){if(!extension(path)||assetCache.has(path))return;try{const f=await readJson(privateRepo,'media/'+path.split('/').at(-1)+'.enc.json');if(!f)return;const bytes=await decryptPayload(f.data,'image:'+path);const url=URL.createObjectURL(new Blob([bytes],{type:'image/webp'}));assetCache.set(path,url);if(img.isConnected&&img.dataset.mediaPath===path)img.src=url;}catch(e){console.warn('Cannot load encrypted preview',e.message)}}
+function imagesInData(data){const paths=new Set();const visit=obj=>{if(!obj||typeof obj!=='object')return;if(Array.isArray(obj)){obj.forEach(visit);return}for(const [k,v] of Object.entries(obj)){if(['avatar','banner','brandingRound','brandingSquare','institutionIcon','companyIcon','organizationIcon','partnerLogo','cover','journalIcon','organizerIcon','logo','icon','url','file'].includes(k)&&typeof v==='string'&&(v.startsWith('assets/media/')||v.startsWith('assets/files/')))paths.add(v);else if(v&&typeof v==='object')visit(v)}};visit(data);return paths}
+function extension(str){return /^(?:assets\/media\/[a-z0-9-]+\.(?:webp|png|jpg|jpeg)|assets\/files\/[a-z0-9-]+\.pdf)$/i.test(str)}
+// GitHub Contents GET may return a cached SHA immediately after an earlier PUT.
+// Use no-store + a unique URL, and reconcile *only* when decrypted remote data is
+// identical to our saved baseline (or our current local content). Never overwrite
+// unrelated remote edits, even when the browser has unsaved changes.
+async function reconcilePrivate(path,expectedSha,kind,baseline,localJSON){
+ const remote=await getFile(privateRepo,path),currentSha=remote?.sha||null;
+ if(currentSha===(expectedSha||null))return {sha:currentSha,alreadySaved:false};
+ if(!remote)throw Error('CONFLICT: '+path+' dihapus di GitHub. Perubahan di tab ini tetap tersedia; jangan refresh.');
+ let json;
+ try{json=JSON.stringify(await decryptJSON(JSON.parse(dec.decode(remote.bytes)),kind));}
+ catch(e){throw Error('CONFLICT: '+path+' berubah dan gagal dibuka. Perubahan Anda masih ada di tab ini; jangan refresh. '+e.message)}
+ if(json===localJSON)return {sha:currentSha,alreadySaved:true};
+ if(baseline!==null&&json===baseline)return {sha:currentSha,alreadySaved:false};
+ throw Error('CONFLICT: draft diubah dari tab/perangkat lain ('+path+'). Perubahan di tab ini masih ada. Jangan refresh sebelum mencadangkannya.');
+}
+async function checkContentSHA(repo,path,expected){const file=await getFile(repo,path);if((file?.sha||null)!==(expected||null))throw Error('CONFLICT: '+path+' pada GitHub berubah dari sesi lain. Website tidak ditimpa.');return file}
+async function uploadPrivateMedia(){const referenced=imagesInData(site);for(const [path,bytes] of [...pendingImages.entries()]){if(!referenced.has(path))continue;const encrypted=await encryptPayload(bytes,'image:'+path);const privPath='media/'+path.split('/').at(-1)+'.enc.json';const existing=await getFile(privateRepo,privPath);if(existing)throw Error('Benturan nama media '+privPath);await putJson(privateRepo,privPath,encrypted,null,'Save encrypted portfolio media');mediaSha.set(path,true);pendingImages.delete(path)}}
+async function saveLocal(){
+ if(!auth||!cryptKey)throw Error('Belum terhubung.');
+ v4Ensure();const safe=sanitize(site),localDraft=JSON.stringify(safe),localCV=JSON.stringify(privateCV);
+ await uploadPrivateMedia();
+ // When nothing changed, do not rewrite the encrypted file with a new AES-GCM IV.
+ // This makes Save followed by Publish (or repeated Publish) idempotent.
+ if(savedDraftBaseline===null||localDraft!==savedDraftBaseline){
+  const check=await reconcilePrivate('draft.enc.json',privateDraftSha,'portfolio-draft',savedDraftBaseline,localDraft);
+  privateDraftSha=check.sha;
+  if(!check.alreadySaved){const draft=await encryptJSON(safe,'portfolio-draft');privateDraftSha=await putJson(privateRepo,'draft.enc.json',draft,privateDraftSha,'Save encrypted portfolio draft');}
+  savedDraftBaseline=localDraft;
+ }
+ if(localCV!==savedCVBaseline){
+  const check=await reconcilePrivate('cv.enc.json',privateCvSha,'private-cv',savedCVBaseline,localCV);
+  privateCvSha=check.sha;
+  if(!check.alreadySaved){const cv=await encryptJSON(privateCV,'private-cv');privateCvSha=await putJson(privateRepo,'cv.enc.json',cv,privateCvSha,'Save encrypted private CV data');}
+  savedCVBaseline=localCV;
+ }
+ unsaved=false;
+}
+async function doSave(){if(busy)return;setBusy(true,'Saving...');msg('Menyimpan perubahan ke GitHub Private…','loading');try{await saveLocal();$('headerStatus').textContent='Saved';msg('Draft tersimpan aman. Website publik belum berubah.');}catch(e){markDirty();msg('Save gagal: '+e.message,'error')}finally{setBusy(false)}}
+async function publicMedia(path){if(!extension(path))throw Error('Path media tidak valid: '+path);const existing=await getFile(publicRepo,path);if(existing)return;const name='media/'+path.split('/').at(-1)+'.enc.json';let bytes=pendingImages.get(path);if(!bytes){const f=await readJson(privateRepo,name);if(!f)throw Error('Media privat hilang: '+path);bytes=await decryptPayload(f.data,'image:'+path)}await putBytes(publicRepo,path,bytes,null,'Publish portfolio photo')}
+async function doPublish(){if(busy)return;if(!v4BeforePublish())return;setBusy(true,'Publishing...');msg('Otomatis Save draft → upload media → Publish…','loading');let saved=false;try{
+ await saveLocal();saved=true;const safe=v4PublishSafe(),paths=imagesInData(safe);for(const path of paths)await publicMedia(path);
+ await checkContentSHA(publicRepo,'site.json',publicSha);publicSha=await putJson(publicRepo,'site.json',safe,publicSha,'Publish portfolio — AS.Portfolio Maker');storedSite=clone(safe);$('headerStatus').textContent='Published';msg('Publish berhasil! Draft tersimpan dan website akan diperbarui oleh GitHub Pages.');}
+ catch(e){if(!saved)markDirty();else $('headerStatus').textContent='Saved, not published';msg('Publish belum selesai'+(saved?' (draft sudah tersimpan)':'')+': '+e.message,'error')}
+ finally{setBusy(false)}
+}
+function render(page){v4Ensure();v4Sidebar();activePage=page;document.querySelectorAll('[data-page]').forEach(n=>n.classList.toggle('active',n.dataset.page===page));clearMsg();const c=configs[page],info=c?[c.title,c.sub]:meta[page]||['',''];const section=site.sections?.find(s=>s.key===page);$('pageTitle').textContent=section?.title||info[0];$('pageDescription').textContent=info[1];$('pageEyebrow').textContent=page==='private'?'Encrypted CV':'Portfolio Studio';
+ if(page==='sections')renderSections();else if(page==='bilingual')renderBilingual();else if(page==='sharing')renderSharing();else if(page==='profile')renderProfile();else if(page==='education')renderEducation();else if(page==='private')renderPrivate();else if(page==='settings')renderSettings();else renderList(page);
+}
+function el(tag,attrs={},children=''){const n=document.createElement(tag);for(const [k,v] of Object.entries(attrs)){if(k==='className')n.className=v;else if(k==='textContent')n.textContent=v;else if(k==='html')n.innerHTML=v;else n.setAttribute(k,v)}if(typeof children==='string'&&children)n.textContent=children;return n}
+function fieldInput(parent,label,path,holder,opts={}){const wrap=el('div',{className:opts.className||''});const id='f-'+uid();const labelNode=el('label',{className:'field',for:id},label);wrap.appendChild(labelNode);let type=opts.type||'text',input=el(['textarea','lines'].includes(type)?'textarea':'input',{id});if(!['textarea','lines'].includes(type)){input.type=type==='url'?'url':type==='email'?'email':type==='checkbox'?'checkbox':'text';if(input.type==='checkbox')input.checked=!!holder[path];else input.value=Array.isArray(holder[path])?holder[path].join('\n'):holder[path]??'';}else input.value=Array.isArray(holder[path])?holder[path].join('\n'):holder[path]??'';
+ input.addEventListener(type==='checkbox'?'change':'input',()=>{holder[path]=type==='checkbox'?input.checked:type==='lines'?input.value.split('\n').map(s=>s.trim()).filter(Boolean):input.value;markDirty()});wrap.appendChild(input);parent.appendChild(wrap);return input}
+function createPanel(title){const n=el('section',{className:'panel'});n.appendChild(el('h2',{},title));$('content').appendChild(n);return n}
+function renderProfile(){const p=site.profile,c=$('content');c.replaceChildren();const basic=createPanel('Personal information'),grid=el('div',{className:'grid2'});basic.appendChild(grid);
+ for(const f of ['name','title','tagline','about','location','institution','institutionUrl'])fieldInput(grid,field[f]?.[0]||f,f,p,{type:f==='about'||f==='tagline'?'textarea':'text',className:f==='about'?'full':''});
+ if(!p.en)p.en={};
+ const media=createPanel('Photos & Branding');for(const f of ['avatar','banner','institutionIcon','brandingRound','brandingSquare'])makeImageControl(media,p,f,{avatar:'Profile photo',banner:'Cover / banner',institutionIcon:'Institution logo',brandingRound:'Round website logo',brandingSquare:'Square favicon'}[f]);}
+function renderEducation(){const c=$('content');c.replaceChildren();const edu=site.profile.education||(site.profile.education={});const pane=createPanel('Education History');pane.append(el('p',{},'Isi hanya jenjang pendidikan yang ingin ditampilkan. Semua perubahan masih lokal hingga Save/Publish.'));
+ for(const [key,label] of [['bachelor','Bachelor / Sarjana'],['master','Master / Magister'],['doctorate','Doctorate / Doktor']]){const ob=edu[key]||(edu[key]={});const sub=el('div',{className:'panel'});sub.style.boxShadow='none';sub.appendChild(el('h2',{},label));const grid=el('div',{className:'grid2'});sub.append(grid);for(const f of ['institution','major','majorEn','year'])fieldInput(grid,f==='majorEn'?'Field of study (English)':f==='major'?'Field of study':f==='year'?'Graduation year':'Institution',f,ob);makeImageControl(sub,ob,'logo','Institution logo');makeGalleryControl(sub,ob);pane.append(sub);}}
+function renderPrivate(){const c=$('content');c.replaceChildren();const pn=createPanel('Private CV Data');pn.appendChild(el('div',{className:'note'},'Data ini hanya disimpan terenkripsi di repository Private, tidak masuk ke site.json publik. Pilih informasi yang ingin dimasukkan pada CV saat export.'));const grid=el('div',{className:'grid2'});pn.appendChild(grid);for(const f of privateKeys)fieldInput(grid,field[f][0],f,privateCV,{type:f==='address'?'textarea':'text',className:f==='address'?'full':''});const foot=createPanel('ATS CV');foot.appendChild(el('p',{},'CV dapat disimpan sebagai PDF melalui dialog Print browser. Data privat tidak pernah dikirim ke GitHub Pages.'));const b=el('button',{type:'button',className:'primary'},'Generate CV ATS (PDF / Print)');b.onclick=printCV;foot.appendChild(b)}
+function renderSettings(){const c=$('content');c.replaceChildren();const pn=createPanel('GitHub connection');pn.innerHTML+=`<p>GitHub owner: <b>${esc(owner)}</b></p><p>Public repository: <b>${esc(publicRepo)}</b> · <b>${esc(publicBranch)}</b></p><p>Private repository: <b>${esc(privateRepo)}</b> · <b>${esc(privateBranch)}</b></p>`;pn.appendChild(el('p',{className:'note'},'Token hanya berlaku selama tab ini terbuka. Password enkripsi tidak bisa direset tanpa password lama. Simpan backup private repository dan password dengan aman.'));
+ const theme=createPanel('Website Color');theme.appendChild(el('p',{},'Pilih aksen warna portofolio. Perubahan baru terlihat di website publik setelah Publish.'));const line=el('div',{className:'inline'}),color=el('input',{type:'color'});color.style.width='70px';color.value=/^#[0-9a-fA-F]{6}$/.test(site.profile.themeColor||'')?site.profile.themeColor:'#187d79';color.addEventListener('input',()=>{site.profile.themeColor=color.value;markDirty()});line.append(color,el('span',{},'Accent color'));theme.append(line);
+ const backup=createPanel('Encrypted draft backup');backup.appendChild(el('p',{},'Gunakan menu Download ZIP GitHub repository Private sebagai backup. Isi file terenkripsi hanya bisa dibuka dengan password yang sama.'));
+ const link=el('a',{href:`https://github.com/${encodeURIComponent(owner)}/${encodeURIComponent(privateRepo)}`,target:'_blank',rel:'noopener noreferrer'},'Buka repository draft privat ↗');backup.appendChild(link);
+ const cv=createPanel('ATS CV');const b=el('button',{type:'button',className:'primary'},'Generate CV ATS');b.onclick=printCV;cv.appendChild(b)}
+function listArr(page){return ['certifications','contacts'].includes(page)?site.profile[page]:site[page]}
+function renderList(page){const conf=configs[page],c=$('content');c.replaceChildren();const row=el('div',{className:'toolbar'});const tip=el('div',{className:'field-help'},'Drag ⠿ to reorder · changes stay in your browser');row.append(tip);const add=el('button',{type:'button',className:'primary'},'+ Add '+conf.title.replace(/s$/,''));add.onclick=()=>openItem(page,null);row.appendChild(add);c.append(row);const list=el('div',{className:'item-list'});c.append(list);let arr=listArr(page);if(!arr.length){list.append(el('div',{className:'empty'},'No entries yet. Click Add to start.'));return;}
+ for(const item of arr){const tile=el('div',{className:'item-row'});tile.dataset.id=item.id;const grip=el('button',{type:'button',className:'grip',title:'Drag item to reorder','aria-label':'Drag item to reorder'},'⠿');grip.draggable=true;tile.append(grip);const block=el('div',{className:'item-content'});block.append(el('b',{},item[conf.main]||'Untitled'));block.append(el('small',{},item[conf.detail]||''));tile.append(block);const edit=el('button',{type:'button',className:'edit'},'Edit');edit.onclick=()=>openItem(page,item.id);const del=el('button',{type:'button',className:'delete'},'Delete');del.onclick=()=>{if(confirm('Delete this entry locally?')){const i=arr.findIndex(x=>x.id===item.id);if(i>=0)arr.splice(i,1);markDirty();renderList(page)}};tile.append(edit,del);list.append(tile)}
+ let drag=null;list.addEventListener('dragstart',e=>{const g=e.target.closest('.grip');if(!g)return e.preventDefault();drag=g.parentNode;drag.classList.add('dragging');e.dataTransfer.setData('text/plain',drag.dataset.id);e.dataTransfer.effectAllowed='move'});list.addEventListener('dragover',e=>{if(!drag)return;e.preventDefault();const target=e.target.closest('.item-row');if(!target||target===drag)return;const r=target.getBoundingClientRect();e.clientY<r.top+r.height/2?list.insertBefore(drag,target):list.insertBefore(drag,target.nextSibling)});list.addEventListener('drop',e=>{if(!drag)return;e.preventDefault();const ids=[...list.querySelectorAll('.item-row')].map(r=>r.dataset.id),map=new Map(arr.map(x=>[x.id,x]));arr.splice(0,arr.length,...ids.map(id=>map.get(id)));drag.classList.remove('dragging');drag=null;markDirty()});list.addEventListener('dragend',()=>{drag?.classList.remove('dragging');drag=null});
+ // Touch/pen stable order: move only on release, not during pointermove.
+ let touch=null;list.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse')return;const g=e.target.closest('.grip');if(!g)return;touch={id:g.parentElement.dataset.id,y:e.clientY,pointer:e.pointerId,start:e.clientY};g.setPointerCapture(e.pointerId);e.preventDefault()});list.addEventListener('pointermove',e=>{if(touch&&e.pointerId===touch.pointer)touch.y=e.clientY});list.addEventListener('pointerup',e=>{if(!touch||e.pointerId!==touch.pointer)return;const t=touch;touch=null;if(Math.abs(t.y-t.start)<7)return;const rows=[...list.querySelectorAll('.item-row')],a=rows.find(r=>r.dataset.id===t.id),others=rows.filter(r=>r!==a),near=others.find(r=>t.y<r.getBoundingClientRect().bottom)||others.at(-1);if(!a||!near)return;const box=near.getBoundingClientRect();t.y<box.top+box.height/2?near.before(a):near.after(a);const ids=[...list.querySelectorAll('.item-row')].map(r=>r.dataset.id),map=new Map(arr.map(x=>[x.id,x]));arr.splice(0,arr.length,...ids.map(id=>map.get(id)));markDirty()});}
+function v6ContactFavicon(value){try{const u=new URL(value);if(!['http:','https:'].includes(u.protocol))return '';return 'https://www.google.com/s2/favicons?domain='+encodeURIComponent(u.hostname)+'&sz=64';}catch{return '';}}
+function v6RefreshContactIconPreview(){}
+function openItem(page,id){const conf=configs[page],arr=listArr(page),origin=id?arr.find(x=>x.id===id):null;const obj=origin?clone(origin):{id:uid(),en:{}};if(!obj.en)obj.en={};$('modalTitle').textContent=(origin?'Edit ':'Add ')+conf.title;$('modalBody').replaceChildren();const grid=el('div',{className:'grid2'});$('modalBody').append(grid);
+ for(const fieldName of conf.fields){const prop=fieldName==='titleItem'?'title':fieldName==='nameCert'?'name':fieldName;const f=field[fieldName]||field[prop]||[prop,'text'];
+  if(page==='contacts'&&prop==='name'){fieldInput(grid,'Platform',prop,obj);continue;}
+  if(page==='contacts'&&prop==='url'){
+   const input=fieldInput(grid,'Link / URL',prop,obj,{type:'url'});
+   input.addEventListener('input',()=>v6RefreshContactIconPreview());
+   continue;
+  }
+  if(f[1]==='image'){const slot=el('div',{className:'full'});grid.append(slot);makeImageControl(slot,obj,prop,page==='contacts'?'Platform icon (optional upload)':f[0]);}
+  else if(conf.slide&&prop==='url'){makeImageControl(grid,obj,'url','Gallery image');}
+  else fieldInput(grid,f[0],prop,obj,{type:f[1],className:f[1]==='textarea'||f[1]==='lines'?'full':''});}
+ if(page==='contacts'){
+  const helper=el('div',{className:'v6-contact-helper full'});
+  helper.append(el('p',{},'Ikon otomatis diambil dari favicon website yang tercantum pada Link / URL. Upload icon hanya jika ingin menggunakan logo khusus.'));
+  const preview=el('div',{className:'v6-contact-icon-preview'});
+  preview.innerHTML='<span>↗</span><small>Automatic platform icon</small>';
+  helper.append(preview);grid.append(helper);
+  const update=()=>{const icon=v6ContactFavicon(obj.url);preview.replaceChildren();if(icon){const im=el('img',{alt:'Platform favicon'});im.src=icon;im.onerror=()=>{im.replaceWith(el('span',{},'↗'))};preview.append(im);}else preview.append(el('span',{},'↗'));preview.append(el('small',{},'Auto icon from URL'));};
+  window.v6RefreshContactIconPreview=update;update();
+ }
+ if(conf.gallery)makeGalleryControl($('modalBody'),obj);$('editorModal').onclose=()=>{if($('editorModal').returnValue==='done'){if(origin)Object.assign(origin,obj);else arr.push(obj);markDirty();renderList(page)}};$('editorModal').showModal();$('editorModal')._editObject=obj;}
+function makeImageControl(parent,record,prop,label){const box=el('div',{className:'media-field'});const lb=el('label',{className:'field'},label);box.append(lb);const choose=el('input',{type:'file',accept:'image/png,image/jpeg,image/webp,image/gif'});const img=el('img',{className:'image-preview',alt:label});const rm=el('button',{type:'button',className:'media-remove'},'Remove image');const update=()=>{const src=resolvePath(record[prop]||'');img.style.display=src?'block':'none';if(src){img.src=src;img.dataset.mediaPath=record[prop];if(record[prop]?.startsWith('assets/media/'))loadPrivatePreview(record[prop],img)}rm.hidden=!src};choose.onchange=async()=>{if(choose.files[0]){try{const path=await stageImage(choose.files[0]);record[prop]=path;update();markDirty()}catch(e){alert(e.message)}finally{choose.value=''}}};rm.onclick=()=>{record[prop]='';update();markDirty()};box.append(choose,img,rm);parent.append(box);update()}
+async function stageImage(file){if(!/^image\/(jpeg|png|webp|gif)$/.test(file.type))throw Error('File harus JPG/PNG/WebP/GIF.');if(file.size>12*1024*1024)throw Error('Gambar maksimal 12 MB sebelum diperkecil.');const bitmap=await createImageBitmap(file);let max=1400,quality=.8,blob=null;const canvas=document.createElement('canvas');for(let attempt=0;attempt<7;attempt++){const scale=Math.min(1,max/Math.max(bitmap.width,bitmap.height));canvas.width=Math.max(1,Math.round(bitmap.width*scale));canvas.height=Math.max(1,Math.round(bitmap.height*scale));canvas.getContext('2d').drawImage(bitmap,0,0,canvas.width,canvas.height);blob=await new Promise(res=>canvas.toBlob(res,'image/webp',quality));if(blob&&blob.size<650*1024)break;max=Math.floor(max*.85);quality=Math.max(.55,quality-.05)}bitmap.close?.();if(!blob)throw Error('Gagal memproses gambar');const bytes=new Uint8Array(await blob.arrayBuffer());if(bytes.length>750*1024)throw Error('Gambar terlalu kompleks; coba gunakan ukuran yang lebih kecil.');const path='assets/media/'+uid()+'.webp';pendingImages.set(path,bytes);assetCache.set(path,URL.createObjectURL(blob));return path}
+function makeGalleryControl(parent,record){const box=el('div',{className:'media-field'});box.append(el('label',{className:'field'},'Gallery photos'));const choose=el('input',{type:'file',accept:'image/png,image/jpeg,image/webp',multiple:''});box.append(choose);record.gallery=Array.isArray(record.gallery)?record.gallery:[];const list=el('div',{className:'media-list'});box.append(list);const update=()=>{list.replaceChildren();for(const photo of record.gallery){const chip=el('div',{className:'media-chip'}),img=el('img',{alt:'Gallery image'});img.src=resolvePath(photo.url);img.dataset.mediaPath=photo.url;if(photo.url?.startsWith('assets/media/'))loadPrivatePreview(photo.url,img);const rm=el('button',{type:'button'},'Remove');rm.onclick=()=>{record.gallery.splice(record.gallery.indexOf(photo),1);markDirty();update()};chip.append(img,rm);list.append(chip)}};choose.onchange=async()=>{for(const file of choose.files){try{record.gallery.push({url:await stageImage(file)});markDirty()}catch(e){alert(e.message);break}}choose.value='';update()};parent.append(box);update()}
+async function autoTranslate(source,keys,dest){if(!confirm('Auto Translate (beta) mengirim teks portofolio publik ke layanan Google Translate. Terjemahan manual yang sudah ada akan dipertahankan. Lanjut?'))return;const targets=keys.filter(k=>source[k]&&!dest[k]);if(!targets.length)return alert('Tidak ada teks kosong yang perlu diterjemahkan.');const btn=document.activeElement;btn.disabled=true;let done=0;try{for(const key of targets){if(Array.isArray(source[key]))continue;const text=String(source[key]).slice(0,3000);const url='https://translate.googleapis.com/translate_a/single?client=gtx&sl=id&tl=en&dt=t&q='+encodeURIComponent(text);const r=await fetch(url);if(!r.ok)throw Error('Translate '+r.status);const json=await r.json();const t=(json[0]||[]).map(x=>x[0]||'').join('').trim();if(t){dest[key]=t;done++;markDirty()}}alert('Terjemahan selesai: '+done+' field. Tutup/buka lagi editor untuk melihat hasil terbaru.')}catch(e){alert('Layanan browser translator tidak tersedia: '+e.message+'\nSilakan terjemahkan manual. Tidak ada data privat yang dikirim.')}finally{btn.disabled=false}}
+function printCV(){const lang=confirm('Generate CV in English?\nOK = English, Cancel = Indonesia')?'en':'id';const showPrivate=confirm('Sertakan data CV privat (email, telepon, NIM, GPA) pada PDF yang Anda cetak?');const p=site.profile,lp=k=>lang==='en'&&p.en?.[k]?p.en[k]:p[k]||'';
+ const sections=[];if(lp('about'))sections.push(`<h2>${lang==='en'?'Summary':'Ringkasan'}</h2><p>${esc(lp('about'))}</p>`);if(p.education){const rows=Object.values(p.education).filter(x=>x?.institution);if(rows.length)sections.push(`<h2>${lang==='en'?'Education':'Pendidikan'}</h2>`+rows.map(x=>`<p><b>${esc(x.institution)}</b> — ${esc(lang==='en'?x.majorEn||x.major:x.major)} ${esc(x.year)}</p>`).join(''))}
+ for(const [key,label] of [['experiences',lang==='en'?'Experience':'Pengalaman'],['projects',lang==='en'?'Projects':'Proyek'],['publications',lang==='en'?'Publications':'Publikasi'],['otherActivities',lang==='en'?'Activities':'Kegiatan']]){const xs=site[key]||[];if(xs.length)sections.push(`<h2>${label}</h2>`+xs.map(x=>`<p><b>${esc(lang==='en'&&x.en?.role||lang==='en'&&x.en?.title||x.role||x.title||'')}</b> · ${esc(x.organization||x.partnerName||x.journal||x.organizer||'')} ${esc(x.period||x.year||'')}<br>${esc(lang==='en'&&(x.en?.description||x.en?.summary)||x.description||x.summary||'')}</p>`).join(''))}
+ const contacts=showPrivate?[privateCV.email,privateCV.phone,privateCV.studentId&&'NIM '+privateCV.studentId,privateCV.gpa&&'GPA '+privateCV.gpa].filter(Boolean):[];
+ const style='body{font-family:Arial,sans-serif;margin:30px auto;padding:0 15px;max-width:760px;color:#111}h1{font-size:26px;margin:0 0 5px}h2{font-size:13px;text-transform:uppercase;border-bottom:1px solid #444;margin:20px 0 9px;padding-bottom:3px}p{font-size:12px;line-height:1.5;margin:6px 0}@media print{body{margin:0;max-width:none}}';
+ const doc='<!doctype html><html><head><meta charset="utf-8"><title>CV ATS</title><style>'+style+'</style></head><body><h1>'+esc(p.name)+'</h1><p>'+esc(lp('title'))+'</p><p>'+esc([p.location,...contacts].filter(Boolean).join(' · '))+'</p>'+sections.join('')+'<p style="margin-top:25px;font-size:10px">Prepared with AS.Portfolio Maker · by as.jawwad</p></body></html>';
+ // Blob URL avoids sending private CV data via network to any service.
+ const url=URL.createObjectURL(new Blob([doc],{type:'text/html;charset=utf-8'}));const win=window.open(url,'_blank');if(win){win.addEventListener('load',()=>win.print(),{once:true})}if(!win){const link=document.createElement('a');link.href=url;link.download='CV_ATS.html';link.click();alert('Popup blocked. HTML CV didownload; buka file itu lalu Print → Save as PDF.')}setTimeout(()=>URL.revokeObjectURL(url),60000)}
+/* AS.Portfolio Maker V5: compact sections and student default examples. */
+const V4_SECTIONS=[
+ ['profile','Profile','Profile'],['education','Pendidikan','Education'],['certifications','Sertifikasi','Certifications'],
+ ['experiences','Pengalaman Profesional','Professional Experience'],['projects','Proyek & Kepanitiaan','Projects & Committees'],
+ ['publications','Publikasi','Publications'],['otherActivities','Kegiatan Lain','Other Activities'],
+ ['slides','Galeri','Gallery'],['contacts','Kontak','Contact'],['sharing','Sharing Portal','Sharing Portal']
+];
+function v4Ensure(){
+ if(!Array.isArray(site.sections))site.sections=[];
+ const keys=new Set(V4_SECTIONS.map(s=>s[0]));site.sections=site.sections.filter(x=>x&&keys.has(x.key));
+ for(const [key,id,en] of V4_SECTIONS){let entry=site.sections.find(x=>x.key===key);
+  if(!entry){entry={key,title:id,titleEn:en,on:key!=='sharing',order:V4_SECTIONS.findIndex(t=>t[0]===key)};site.sections.push(entry)}
+  if(typeof entry.title!=='string')entry.title=id;if(typeof entry.titleEn!=='string')entry.titleEn=en;
+  if(typeof entry.on!=='boolean')entry.on=key!=='sharing';if(!Number.isFinite(+entry.order))entry.order=V4_SECTIONS.findIndex(t=>t[0]===key);
+ }
+ site.sections.sort((a,b)=>a.order-b.order);
+ if(!site.sharing||typeof site.sharing!=='object'||Array.isArray(site.sharing))site.sharing={categories:[]};
+ if(!Array.isArray(site.sharing.categories))site.sharing.categories=[];
+ if(!site.translationMeta||typeof site.translationMeta!=='object'||Array.isArray(site.translationMeta))site.translationMeta={};
+}
+function v4Section(key){v4Ensure();return site.sections.find(s=>s.key===key)}
+function v4Enabled(key){return !!v4Section(key)?.on}
+function v4Sidebar(){v4Ensure();const nav=document.querySelector('.nav-group');if(!nav)return;
+ const old=new Map(Array.from(nav.querySelectorAll('[data-page]')).map(b=>[b.dataset.page,b]));
+ const sectionsButton=old.get('sections')||el('button',{type:'button',className:'nav','data-page':'sections'},'Sections');
+ nav.replaceChildren(sectionsButton);
+ for(const s of site.sections){let b=old.get(s.key)||el('button',{type:'button',className:'nav','data-page':s.key});b.textContent=(s.on?'':'◌ ')+(s.title||s.key);b.title=s.on?'Tampil di website':'Disembunyikan dari website; konten tetap bisa diedit';nav.append(b)}
+ for(const [key,label] of [['private','Private CV Data'],['bilingual','Bilingual'],['settings','Settings']]){let b=old.get(key)||el('button',{type:'button',className:'nav','data-page':key});b.textContent=label;nav.append(b)}
+ nav.querySelectorAll('[data-page]').forEach(b=>{b.onclick=()=>{if(!busy)render(b.dataset.page)};b.classList.toggle('active',b.dataset.page===activePage)});
+}
+function v4On(){v4Sidebar();}
+function v4FixOrder(){site.sections.forEach((s,i)=>s.order=i)}
+function v4DragSort(list,getArray,onChange){let dragging=null;
+ list.addEventListener('dragstart',e=>{const grip=e.target.closest('.grip');if(!grip)return;dragging=grip.closest('[data-id]');dragging.classList.add('dragging');e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',dragging.dataset.id)});
+ list.addEventListener('dragover',e=>{if(!dragging)return;e.preventDefault();const target=e.target.closest('[data-id]');if(!target||target===dragging)return;const box=target.getBoundingClientRect();e.clientY<box.top+box.height/2?target.before(dragging):target.after(dragging)});
+ list.addEventListener('drop',e=>{if(!dragging)return;e.preventDefault();commit()});list.addEventListener('dragend',()=>{if(dragging)commit()});
+ function commit(){dragging?.classList.remove('dragging');dragging=null;const ids=Array.from(list.querySelectorAll('[data-id]'),x=>x.dataset.id);const data=getArray(),map=new Map(data.map(x=>[x.key||x.id,x]));data.splice(0,data.length,...ids.map(id=>map.get(id)).filter(Boolean));onChange();markDirty()}
+ let touch=null;list.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse')return;const g=e.target.closest('.grip');if(!g)return;touch={id:g.closest('[data-id]').dataset.id,start:e.clientY,y:e.clientY,pointer:e.pointerId};g.setPointerCapture(e.pointerId);e.preventDefault()});list.addEventListener('pointermove',e=>{if(touch&&e.pointerId===touch.pointer)touch.y=e.clientY});list.addEventListener('pointerup',e=>{if(!touch||e.pointerId!==touch.pointer)return;const t=touch;touch=null;if(Math.abs(t.y-t.start)<6)return;const rows=[...list.querySelectorAll('[data-id]')],src=rows.find(x=>x.dataset.id===t.id),rest=rows.filter(x=>x!==src),target=rest.find(x=>t.y<x.getBoundingClientRect().bottom)||rest.at(-1);if(!src||!target)return;const box=target.getBoundingClientRect();t.y<box.top+box.height/2?target.before(src):target.after(src);const ids=[...list.querySelectorAll('[data-id]')].map(x=>x.dataset.id),data=getArray(),map=new Map(data.map(x=>[x.key||x.id,x]));data.splice(0,data.length,...ids.map(id=>map.get(id)).filter(Boolean));onChange();markDirty()})
+}
+function v4SectionRows(){const list=el('div',{className:'item-list v4-section-list'});for(const s of site.sections){const row=el('div',{className:'item-row'});row.dataset.id=s.key;const grip=el('button',{type:'button',className:'grip',title:'Drag untuk mengubah urutan'},'⠿');grip.draggable=true;row.append(grip);
+ const main=el('div',{className:'v4-section-editor'}),inp=el('input',{type:'text','aria-label':'Nama section Indonesia'});inp.value=s.title;inp.oninput=()=>{s.title=inp.value;markDirty();v4Sidebar()};
+ const enInp=el('input',{type:'text','aria-label':'Nama section English'});enInp.placeholder='English (diisi melalui Bilingual)';enInp.value=s.titleEn;enInp.oninput=()=>{s.titleEn=enInp.value;site.translationMeta['section:'+s.key]={source:s.title,status:'manual'};markDirty()};
+ main.append(el('small',{},'Indonesia'),inp,el('small',{},'English'),enInp);row.append(main);
+ const on=el('label',{className:'v4-toggle'});const chk=el('input',{type:'checkbox'});chk.checked=s.on;chk.onchange=()=>{s.on=chk.checked;markDirty();v4Sidebar()};on.append(chk,el('span',{},'On / Off'));row.append(on);list.append(row)}
+ v4DragSort(list,()=>site.sections,()=>{v4FixOrder();v4Sidebar()});return list}
+function renderSections(){v4Ensure();const c=$('content');c.replaceChildren();const help=createPanel('Nama, urutan, dan tampilan');help.append(el('p',{},'Geser ⠿ untuk mengurutkan. Nama yang diedit menjadi nama menu kiri dan judul pada website. Off menyembunyikan section dari website tanpa menghapus datanya.'));
+ help.append(v4SectionRows());const foot=createPanel('Sharing Portal');foot.append(el('p',{},'Aktifkan Sharing Portal pada daftar di atas. Kelola kategori dan card melalui menu Sharing Portal.'));
+ const link=el('button',{type:'button',className:'ghost'},'Kelola Sharing Portal');link.onclick=()=>render('sharing');foot.append(link);
+}
+function v4TransRows(){v4Ensure();const result=[];const add=(id,section,label,src,dest,property='en',holder=null,sourceProperty=null)=>{const isArray=Array.isArray(src);if(isArray)src=src.join('\n');if(isArray&&Array.isArray(dest))dest=dest.join('\n');if(typeof src!=='string'||!src.trim())return;
+  const english=typeof dest==='string'?dest:'';const meta=site.translationMeta[id]||null;
+  const stale=!!(english.trim()&&meta&&meta.source!==src);
+  result.push({id,section,label,src,english,stale,holder,property,sourceProperty,isArray});};
+ const p=site.profile;
+ if(v4Enabled('profile'))for(const f of ['title','tagline','about'])add('profile:'+f,'Profile',field[f]?.[0]||f,p[f],p.en?.[f],'en',p,f);
+ if(v4Enabled('education'))for(const [degree,d] of Object.entries(p.education||{}))if(d&&d.institution)add('education:'+degree+':major','Education',degree+' · Field of study',d.major,d.majorEn,'majorEn',d,'major');
+ if(v4Enabled('certifications'))for(const x of p.certifications||[])add('cert:'+x.id+':name','Certifications','Certificate',x.name,x.nameEn,'nameEn',x,'name');
+ const fields={experiences:['role','summary','contributions'],projects:['title','description','role','outputs'],publications:['title'],otherActivities:['title','type','role','description']};
+ for(const [key,fs] of Object.entries(fields))if(v4Enabled(key))for(const item of site[key]||[])for(const f of fs)add('item:'+key+':'+item.id+':'+f,v4Section(key).title,f,item[f],item.en?.[f],'en',item,f);
+ for(const s of site.sections)if(s.on)add('section:'+s.key,'Sections',s.key,s.title,s.titleEn,'titleEn',s,'title');
+ if(v4Enabled('sharing'))for(const cat of site.sharing.categories||[])if(cat.on!==false){add('sharingcat:'+cat.id,'Sharing Portal','Category name',cat.title,cat.titleEn,'titleEn',cat,'title');for(const card of cat.items||[])for(const prop of ['title','description'])add('sharingcard:'+card.id+':'+prop,cat.title,prop,card[prop],card.en?.[prop],'en',card,prop)}
+ return result;
+}
+function v4InitTranslationMeta(){for(const row of v4TransRows())if(row.english.trim()&&!site.translationMeta[row.id])site.translationMeta[row.id]={source:row.src,status:'existing'};}
+function v4PublishSafe(){v4Ensure();const out=sanitize(site);out.sections=out.sections.filter(x=>x.on);if(!out.sections.some(x=>x.key==='sharing'))out.sharing={categories:[]};else out.sharing.categories=(out.sharing.categories||[]).filter(x=>x.on!==false);for(const key of ['experiences','projects','publications','otherActivities','slides'])if(!v4Enabled(key))out[key]=[];if(!v4Enabled('certifications'))out.profile.certifications=[];if(!v4Enabled('contacts'))out.profile.contacts=[];if(!v4Enabled('education'))out.profile.education={};if(!v4Enabled('profile')){out.profile={name:'',themeColor:out.profile.themeColor||'#18827c',education:out.profile.education,certifications:out.profile.certifications,contacts:out.profile.contacts,en:{}};}delete out.translationMeta;return out;}
+function v4TranslationStatus(){const rows=v4TransRows(),bad=rows.filter(r=>!r.english.trim()||r.stale);return {rows,bad,missing:bad.filter(x=>!x.english.trim()).length,review:bad.filter(x=>x.stale).length}}
+function v4AssignTranslation(r,text,mode){const x=r.holder;if(r.property==='en'){if(!x.en||typeof x.en!=='object')x.en={};x.en[r.sourceProperty]=r.isArray?text.split('\n').map(v=>v.trim()).filter(Boolean):text}else x[r.property]=text;
+ site.translationMeta[r.id]={source:r.src,status:mode};markDirty();}
+async function v4TranslateMissing(){const rows=v4TransRows().filter(r=>!r.english.trim());if(!rows.length){msg('Semua teks aktif sudah memiliki English.');return}
+ if(!confirm(`Terjemahkan ${rows.length} teks publik dari Indonesia ke English? Teks dikirim ke layanan Google Translate publik (beta), bukan ke server pribadi.`))return;
+ const btn=$('v4TranslateBtn');btn.disabled=true;const memo=new Map();let success=0,failed=0;
+ try{for(const r of rows){if(!r.src.trim())continue;try{let out=memo.get(r.src);if(!out){const url='https://translate.googleapis.com/translate_a/single?client=gtx&sl=id&tl=en&dt=t&q='+encodeURIComponent(r.src.slice(0,3000));const response=await fetch(url);if(!response.ok)throw Error('HTTP '+response.status);const payload=await response.json();out=(payload[0]||[]).map(x=>x[0]||'').join('').trim();if(!out)throw Error('Terjemahan kosong');memo.set(r.src,out)}v4AssignTranslation(r,out,'auto');success++;}
+ catch(e){console.warn('Translate fail for',r.id,e.message);failed++;}}
+ renderBilingual();msg(`Auto Translate: ${success} berhasil; ${failed} gagal. Periksa dan koreksi hasil sebelum Publish.`,failed?'error':'success');}finally{btn.disabled=false}}
+function renderBilingual(){v4Ensure();const c=$('content');c.replaceChildren();const s=v4TranslationStatus(),pane=createPanel('Indonesia → English');
+ const info=el('div',{className:'v4-translation-summary'});info.append(el('strong',{},`${s.rows.length-s.bad.length}/${s.rows.length} translated`),el('span',{},`${s.missing} missing · ${s.review} needs review`));pane.append(info);
+ const bar=el('div',{className:'v4-progress'}),progress=el('span');progress.style.width=(s.rows.length?100*(s.rows.length-s.bad.length)/s.rows.length:100)+'%';bar.append(progress);pane.append(bar);
+ pane.append(el('p',{},'Hanya teks pada section yang On yang diwajibkan. Manual English tidak ditimpa. Jika Indonesia diubah, hasil lama menjadi Needs Review.'));
+ const toolbar=el('div',{className:'toolbar'}),toggle=el('label',{className:'checkline'});const only=el('input',{type:'checkbox'});only.checked=true;toggle.append(only,el('span',{},'Tampilkan hanya yang perlu ditangani'));
+ const translate=el('button',{type:'button',className:'primary',id:'v4TranslateBtn'},`Auto Translate Missing (${s.missing})`);translate.disabled=!s.missing;translate.onclick=v4TranslateMissing;toolbar.append(toggle,translate);pane.append(toolbar);
+ const list=el('div',{className:'v4-translation-list'});pane.append(list);
+ const refresh=()=>{list.replaceChildren();for(const r of v4TransRows()){if(only.checked&&r.english.trim()&&!r.stale)continue;const item=el('div',{className:'v4-translation-item'}),heading=el('div',{className:'v4-row-header'});heading.append(el('strong',{},r.section+' · '+r.label),el('small',{className:r.stale?'v4-review':r.english?'v4-ok':'v4-missing'},r.stale?'Needs Review':r.english?'Translated':'Missing'));item.append(heading);
+  const pair=el('div',{className:'grid2'}),left=el('div'),right=el('div');left.append(el('label',{className:'field'},'Indonesia'),el('div',{className:'v4-original'},r.src));const en=el('textarea',{rows:'3','aria-label':'English '+r.label});en.value=r.english;en.placeholder='English translation';en.oninput=()=>{v4AssignTranslation(r,en.value,'manual');heading.querySelector('small').textContent=en.value.trim()?'Translated':'Missing';heading.querySelector('small').className=en.value.trim()?'v4-ok':'v4-missing';};right.append(el('label',{className:'field'},'English'),en);pair.append(left,right);item.append(pair);if(r.stale){item.append(el('small',{className:'v4-review'},'Indonesia berubah. Periksa English lalu setujui hasil.'));const approve=el('button',{type:'button',className:'ghost btn-small'},'Mark as Reviewed');approve.onclick=()=>{v4AssignTranslation(r,en.value,'manual');renderBilingual()};item.append(approve)}list.append(item)}if(!list.children.length)list.append(el('div',{className:'note'},'Semua teks aktif sudah diterjemahkan.'))};only.onchange=refresh;refresh();
+}
+function v4CreateCategory(){const title=prompt('Nama kategori Sharing Portal (Bahasa Indonesia):','Materi Kuliah');if(!title?.trim())return;site.sharing.categories.push({id:uid(),title:title.trim(),titleEn:'',on:true,items:[]});markDirty();renderSharing()}
+function renderSharing(){v4Ensure();const c=$('content');c.replaceChildren();const info=createPanel('Sharing Portal');info.append(el('p',{},'Nama portal, urutan, dan status On/Off diatur melalui Sections. File PDF dan gambar akan disimpan terenkripsi di repository privat saat Save, lalu menjadi publik hanya saat Publish.'));
+ const link=el('button',{type:'button',className:'ghost btn-small'},'Atur nama & status Portal');link.onclick=()=>render('sections');info.append(link);
+ const pane=createPanel('Kategori dan Card');const head=el('div',{className:'toolbar'}),add=el('button',{type:'button',className:'primary'},'+ Add Category');add.onclick=v4CreateCategory;head.append(el('span',{className:'field-help'},'Drag ⠿ untuk mengatur urutan kategori.'));head.append(add);pane.append(head);
+ const list=el('div',{className:'item-list'});pane.append(list);const cats=site.sharing.categories;
+ for(const cat of cats){const row=el('div',{className:'panel v4-cat-panel'});row.dataset.id=cat.id;
+ const top=el('div',{className:'v4-category-top'}),grip=el('button',{type:'button',className:'grip'},'⠿');grip.draggable=true;top.append(grip);
+ const title=el('input',{type:'text','aria-label':'Nama kategori'});title.value=cat.title;title.oninput=()=>{cat.title=title.value;markDirty()};top.append(title);
+ const enabled=el('label',{className:'v4-toggle'}),chk=el('input',{type:'checkbox'});chk.checked=cat.on!==false;chk.onchange=()=>{cat.on=chk.checked;markDirty()};enabled.append(chk,el('span',{},'On'));top.append(enabled);
+ const del=el('button',{type:'button',className:'delete'},'Delete');del.onclick=()=>{if(confirm('Hapus kategori beserta semua card?')){cats.splice(cats.indexOf(cat),1);markDirty();renderSharing()}};top.append(del);row.append(top);
+ const en=el('input',{type:'text','aria-label':'Nama kategori English',placeholder:'Category name (English via Bilingual)'});en.value=cat.titleEn||'';en.oninput=()=>{cat.titleEn=en.value;site.translationMeta['sharingcat:'+cat.id]={source:cat.title,status:'manual'};markDirty()};row.append(en);
+ const cards=el('div',{className:'v4-cards-manager'});for(const card of cat.items||[]){const cr=el('div',{className:'v4-card-row'});cr.append(el('b',{},card.title||'Card baru'));const e=el('button',{type:'button',className:'edit'},'Edit');e.onclick=()=>v4EditShareCard(cat,card);const d=el('button',{type:'button',className:'delete'},'Delete');d.onclick=()=>{if(confirm('Hapus card?')){cat.items.splice(cat.items.indexOf(card),1);markDirty();renderSharing()}};cr.append(e,d);cards.append(cr)}row.append(cards);
+ const addCard=el('button',{type:'button',className:'ghost btn-small'},'+ Add Card');addCard.onclick=()=>v4EditShareCard(cat,null);row.append(addCard);list.append(row)}
+ if(!cats.length)list.append(el('div',{className:'empty'},'Belum ada kategori. Klik Add Category.'));
+ v4DragSort(list,()=>site.sharing.categories,()=>{});
+}
+function v4EditShareCard(cat,existing){const item=existing?clone(existing):{id:uid(),title:'',description:'',link:'',file:'',cover:'',en:{}};
+ $('modalTitle').textContent=(existing?'Edit':'Add')+' Sharing Card';const area=$('modalBody');area.replaceChildren();const grid=el('div',{className:'grid2'});area.append(grid);
+ fieldInput(grid,'Judul card (Indonesia)','title',item);fieldInput(grid,'Deskripsi (Indonesia)','description',item,{type:'textarea',className:'full'});
+ fieldInput(grid,'Link eksternal (opsional)','link',item,{type:'url',className:'full'});
+ makeImageControl(area,item,'cover','Gambar / cover card');v4FileControl(area,item);
+ area.append(el('p',{className:'field-help'},'File dan gambar menjadi publik hanya setelah Publish. Jangan upload dokumen sensitif.'));
+ $('editorModal').onclose=()=>{if($('editorModal').returnValue==='done'){if(existing)Object.assign(existing,item);else cat.items.push(item);markDirty();renderSharing()}};
+ $('editorModal').showModal();
+}
+function v4FileControl(area,item){const group=el('div',{className:'media-field'});group.append(el('label',{className:'field'},'Upload PDF (opsional; maks. 4 MB)'));
+ const input=el('input',{type:'file',accept:'application/pdf,.pdf'});const detail=el('small',{className:'field-help'},item.file?'PDF dipilih: '+item.file:'Belum ada PDF');input.onchange=async()=>{const file=input.files[0];if(!file)return;try{if(file.size>4*1024*1024||file.size===0||!(file.type==='application/pdf'||file.name.toLowerCase().endsWith('.pdf')))throw Error('PDF harus lebih kecil dari 4 MB.');const bytes=new Uint8Array(await file.arrayBuffer());if(dec.decode(bytes.subarray(0,5))!=='%PDF-')throw Error('File bukan PDF yang valid.');const path='assets/files/'+uid()+'.pdf';pendingImages.set(path,bytes);item.file=path;detail.textContent='PDF siap: '+file.name;markDirty()}catch(e){alert(e.message)}finally{input.value=''}};group.append(input,detail);
+ const remove=el('button',{type:'button',className:'media-remove'},'Hapus pilihan PDF');remove.onclick=()=>{item.file='';detail.textContent='Belum ada PDF';markDirty()};group.append(remove);area.append(group)}
+function v4BeforePublish(){const state=v4TranslationStatus();if(!state.bad.length)return true;
+ const choices=`Bilingual belum lengkap: ${state.missing} Missing dan ${state.review} Needs Review.\n\nKlik OK untuk membuka tab Bilingual. Klik Cancel untuk tetap di editor. Publish belum dijalankan.`;
+ if(confirm(choices))render('bilingual');return false;
+}
+
+$('connectForm').addEventListener('submit',connect);
+$('topSave').addEventListener('click',doSave);$('topPublish').addEventListener('click',doPublish);$('lockButton').onclick=()=>{if(unsaved&&!confirm('Perubahan yang belum di-Save akan hilang. Lock sekarang?'))return;location.reload()};
+document.querySelectorAll('[data-page]').forEach(x=>x.onclick=()=>{if(!busy)render(x.dataset.page)});
+$('closeModal').onclick=()=>$('editorModal').close('cancel');$('cancelModal').onclick=()=>$('editorModal').close('cancel');$('doneModal').onclick=e=>{e.preventDefault();$('editorModal').close('done')};
+$('editorModal').addEventListener('cancel',e=>{$('editorModal').close('cancel')});
+window.addEventListener('beforeunload',e=>{if(unsaved){e.preventDefault();e.returnValue=''}});
+// V2 auto-fills the project repository pair; users may still override manually.
+const guess=location.pathname.split('/').filter(Boolean);
+if(guess.length>=2&&guess[0].toLowerCase()!==location.hostname.split('.')[0].toLowerCase()){
+ $('publicRepo').value=guess[0];$('privateRepo').value=guess[0]+'-private';
+}else if(location.hostname.endsWith('.github.io')){
+ $('publicRepo').value=location.hostname.split('.')[0]+'.github.io';$('privateRepo').value='portfolio-private';
+}
+let privateRepoModified=false;
+$('privateRepo').addEventListener('input',()=>{privateRepoModified=true});
+$('publicRepo').addEventListener('input',()=>{if(!privateRepoModified)$('privateRepo').value=$('publicRepo').value.trim()+'-private';});
