@@ -1,0 +1,43 @@
+/* AS.Portfolio Maker V4 — global website theme */
+:root{--v4-theme-dark:#102e3b;--v4-theme-mid:#196169;--v4-theme-bright:#84b8ae;--student-accent:#187d79}
+.topbar a:hover,.topnav a:hover,.nav-actions .menu-button:hover{color:var(--student-accent)!important}
+.student-logo{background:color-mix(in srgb,var(--student-accent),white 88%)!important;color:var(--student-accent)!important}
+.hero{background-image:radial-gradient(circle at 82% 15%,var(--v4-theme-mid),transparent 43%),linear-gradient(115deg,var(--v4-theme-dark),var(--v4-theme-mid));color:#fff}
+.lang-switch button.active,.btn.btn-primary,.btn-primary,.v10-more-button:hover,.project-card:hover .project-symbol{background:var(--student-accent)!important;border-color:var(--student-accent)!important;color:#fff!important}
+.btn:hover,.topbar .menu-button:hover,.v10-more-button,.contact-links a:hover{border-color:var(--student-accent)!important}
+a:focus-visible,button:focus-visible{outline-color:var(--student-accent)!important}
+.section-label,.hero-eyebrow,[data-i18n="careerLabel"],[data-i18n="workLabel"],[data-i18n="researchLabel"],[data-i18n="otherActivitiesLabel"],[data-i18n="contactLabel"]{display:none!important}
+.content-section .section-heading h2{margin-top:0!important}
+.hero h1{color:#fff!important}
+.v4-subsection{padding:12px 0 26px}
+.v4-subsection>h2,.v4-subsection>.section-heading h2{font-size:clamp(23px,2.2vw,32px);color:#153748;letter-spacing:-.04em}
+.v4-subsection .v16-education,.v4-subsection .v28-certifications,.v4-subsection .slideshow-block{max-width:none!important;width:100%;margin-top:16px}
+.v4-subsection #certification-list[hidden]{display:none!important}
+.v4-subsection .slideshow-block{min-height:280px}
+.about-panel .v13-about-lower{display:block!important}
+.about-panel .v13-facts{width:100%!important;max-width:none!important}
+.v4-disabled,[hidden]{display:none!important}
+.topnav{display:flex;gap:clamp(8px,1.3vw,20px);flex-wrap:wrap;align-items:center;justify-content:center}
+.topnav a{white-space:nowrap;font-size:clamp(11px,.85vw,14px)}
+.topbar-inner{gap:18px!important}
+.sharing-page{padding:48px 0 90px}
+.sharing-page h1{font-size:clamp(32px,4vw,50px);letter-spacing:-.055em;margin:0 0 13px;color:#153748}
+.sharing-page .share-intro{color:#65808b;max-width:780px;margin-bottom:32px}
+.sharing-category{margin:32px 0 44px}
+.sharing-category h2{font-size:clamp(23px,2.2vw,30px);letter-spacing:-.035em;color:#153748;margin:0 0 20px}
+.sharing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(245px,1fr));gap:19px}
+.sharing-card{display:flex;flex-direction:column;border:1px solid #dce8eb;border-radius:15px;background:#fff;overflow:hidden;box-shadow:0 8px 28px #1836480b;min-height:200px}
+.sharing-cover{aspect-ratio:16/9;display:grid;place-items:center;background:color-mix(in srgb,var(--student-accent),white 90%);color:var(--student-accent);font-size:45px}
+.sharing-cover img{width:100%;height:100%;object-fit:cover}
+.sharing-card-body{padding:19px 20px;display:flex;flex-direction:column;gap:8px;flex:1}
+.sharing-card-body h3{font-size:18px;color:#173647;margin:0}
+.sharing-card-body p{line-height:1.6;color:#637985;margin:0 0 7px;white-space:pre-wrap}
+.sharing-actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:auto;padding-top:10px}
+.sharing-actions a{background:var(--student-accent);color:#fff;padding:9px 13px;border-radius:9px;font-weight:700;text-decoration:none}
+.sharing-actions a:nth-child(2){background:#fff;color:var(--student-accent);border:1px solid var(--student-accent)}
+@media(max-width:900px){.topnav{justify-content:flex-start}.topbar-inner{flex-wrap:wrap}.sharing-page{padding:28px 0 70px}.v4-subsection .v16-education-grid{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}}
+/* Cross-component accent consistency, retaining readable contrast in dark areas. */
+:root{--mint:var(--student-accent)}
+.filter-chip.active,.topnav .nav-portal{background:var(--student-accent)!important;border-color:var(--student-accent)!important;color:#fff!important}
+.project-type,.pub-link,.project-card .card-link,.publication-item .pub-year,.experience-icon,.experience-main p,.row-arrow,.contact-links a span,.modal-eyebrow,.site-footer a,.v10-more-button{color:var(--student-accent)!important}
+.contact-links a:hover,.contact-links button:hover,.v10-more-button:hover{box-shadow:0 5px 18px color-mix(in srgb,var(--student-accent),transparent 80%)}

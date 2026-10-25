@@ -30,7 +30,7 @@ function renderPortfolio(data){portfolioData=data;const p=data.profile||{};if(/^
  document.getElementById('specialty-tags')?.remove();
  renderEducation(p);renderCertifications(p);
  document.getElementById('year').textContent=new Date().getFullYear();
- renderExperience();renderProjects();renderPublications();renderOtherActivities();renderContacts();renderSlides();pm24ApplyBranding(p);}
+ renderExperience();renderProjects();renderPublications();renderOtherActivities();renderContacts();renderSlides();pm24ApplyBranding(p);v4ApplySections(data);}
 // V16: Education is an optional object in Profile; existing Profiles continue to work.
 function pm24ApplyBranding(profile){
  const round=SITE.safeURL(profile.brandingRound||'');
@@ -280,5 +280,38 @@ document.querySelectorAll('[data-lang]').forEach(b=>b.addEventListener('click',(
 try{if(localStorage.getItem('portfolioLangV7')==='en')currentLanguage='en';}catch(e){}
 document.getElementById('navToggle').addEventListener('click',()=>document.querySelector('.topnav').classList.toggle('open'));
 document.getElementById('slidePrev').addEventListener('click',()=>{changeSlide(slideAt-1);resetSlideTimer()});document.getElementById('slideNext').addEventListener('click',()=>{changeSlide(slideAt+1);resetSlideTimer()});
+
+/* AS.Portfolio Maker V4: section organization and full color theme, without modifying data. */
+const V4_DEFAULTS=[['profile','Profile','Profile'],['education','Pendidikan','Education'],['certifications','Sertifikasi','Certifications'],['experiences','Pengalaman Profesional','Professional Experience'],['projects','Proyek & Kajian','Projects & Studies'],['publications','Publikasi','Publications'],['otherActivities','Kegiatan Lain','Other Activities'],['slides','Galeri','Gallery'],['contacts','Kontak','Contact'],['sharing','Sharing Portal','Sharing Portal']];
+const V4_SECTION_ELEMENTS={profile:'.about-panel',education:'#v4-education-section',certifications:'#v4-certifications-section',experiences:'#experience',projects:'#projects',publications:'#publications',otherActivities:'#other-activities',slides:'#v4-gallery-section',contacts:'#contact'};
+function v4IsHex(v){return /^#[\da-f]{6}$/i.test(v)}
+function v4RGB(hex){return [1,3,5].map(i=>parseInt(hex.slice(i,i+2),16))}
+function v4Mix(c1,c2,w){const a=v4RGB(c1),b=v4RGB(c2);return '#'+a.map((v,i)=>Math.round(v*(1-w)+b[i]*w).toString(16).padStart(2,'0')).join('')}
+function v4ApplyTheme(data){const base=v4IsHex(data?.profile?.themeColor)?data.profile.themeColor:'#187d79',root=document.documentElement;
+ const dark=v4Mix(base,'#081c2c',.66),mid=v4Mix(base,'#0b2534',.42),highlight=v4Mix(base,'#fffefe',.22);root.style.setProperty('--student-accent',base);root.style.setProperty('--v4-theme-dark',dark);root.style.setProperty('--v4-theme-mid',mid);root.style.setProperty('--v4-theme-bright',highlight);
+ const hero=document.querySelector('.hero');if(hero){const backdrop=SITE.safeURL(data.profile?.banner||'');const gradient=`radial-gradient(circle at 85% 14%, ${mid} 0%, transparent 46%), linear-gradient(112deg, ${dark}, ${mid} 75%, ${v4Mix(base,'#0b2534',.3)})`;hero.style.backgroundImage=backdrop?`linear-gradient(108deg,${dark}ee,${mid}bb),url("${backdrop.replaceAll('"','%22')}")`:gradient;}
+}
+function v4CreateSubsection(id,label,rootNode){const page=document.querySelector('.page-content');let section=document.getElementById(id);if(!section){section=document.createElement('section');section.id=id;section.className='content-section v4-subsection';section.innerHTML='<div class="section-heading"><h2></h2></div>';page.append(section)}section.querySelector('h2').textContent=label;
+ if(rootNode&&rootNode.parentNode!==section)section.append(rootNode);return section;}
+function v4PrepareLayout(data){const p=document.querySelector('.page-content');if(!p)return;const profile=p.querySelector('.about-panel');if(profile)profile.id='v4-about-profile';
+ const ed=document.querySelector('.v16-education');v4CreateSubsection('v4-education-section',currentLanguage==='id'?'Pendidikan':'Education',ed);
+ const cert=document.getElementById('certification-list');v4CreateSubsection('v4-certifications-section',currentLanguage==='id'?'Sertifikasi':'Certifications',cert);
+ const gallery=document.querySelector('.slideshow-block');v4CreateSubsection('v4-gallery-section',currentLanguage==='id'?'Galeri':'Gallery',gallery);
+ document.querySelector('.hero').id='profile';
+}
+function v4ApplySections(data){v4ApplyTheme(data);v4PrepareLayout(data);const raw=Array.isArray(data.sections)?data.sections:[],defs=V4_DEFAULTS.map(([key,id,en],i)=>{const existing=raw.find(s=>s.key===key)||{};return {key,title:existing.title||id,titleEn:existing.titleEn||en,on:typeof existing.on==='boolean'?existing.on:key!=='sharing',order:Number.isFinite(+existing.order)?+existing.order:i}}).sort((a,b)=>a.order-b.order);
+ const page=document.querySelector('.page-content'),nav=document.getElementById('topNav');nav.replaceChildren();
+ for(const s of defs){const target=V4_SECTION_ELEMENTS[s.key]?document.querySelector(V4_SECTION_ELEMENTS[s.key]):null;
+ const display=s.on;
+ if(target){target.hidden=!display;target.classList.toggle('v4-disabled',!display);if(display)page.append(target);
+ const h=target.querySelector(':scope > .section-heading h2')||target.querySelector(':scope > h2')||(s.key==='contacts'?target.querySelector('h2'):null);if(h&&s.key!=='profile')h.textContent=currentLanguage==='en'?s.titleEn||s.title:s.title;
+ if(s.key==='profile'){const about=target.querySelector(':scope > h2');if(about)about.textContent=currentLanguage==='en'?s.titleEn||s.title:s.title;}
+ }
+ if(s.key==='profile')document.querySelector('.hero').hidden=!display;
+ if(!display)continue;
+ const a=document.createElement('a');a.textContent=currentLanguage==='en'?s.titleEn||s.title:s.title;
+ const href={profile:'#profile',education:'#v4-education-section',certifications:'#v4-certifications-section',experiences:'#experience',projects:'#projects',publications:'#publications',otherActivities:'#other-activities',slides:'#v4-gallery-section',contacts:'#contact',sharing:'sharing.html'}[s.key];a.href=href;nav.append(a);
+ }
+}
 
 SITE.load().then(renderPortfolio).catch(e=>{document.querySelector('.page-content').innerHTML=`<div class="empty-card">Gagal memuat data website: ${SITE.escape(e.message)}</div>`});
