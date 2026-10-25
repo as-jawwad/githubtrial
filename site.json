@@ -112,11 +112,25 @@
         "major": "Teknologi dan Rekayasa",
         "majorEn": "Technology and Engineering",
         "year": "2005",
-        "logo": "https://logospng.org/download/mit/logo-mit-1024.png"
+        "logo": "https://logospng.org/download/mit/logo-mit-1024.png",
+        "gallery": []
+      },
+      "bachelor": {
+        "gallery": []
+      },
+      "doctorate": {
+        "gallery": []
       }
     },
     "certifications": [],
-    "contacts": [],
+    "contacts": [
+      {
+        "id": "4d2b4ecd-bb2a-434d-9741-3e2d2a61efb3",
+        "en": {},
+        "url": "https://www.linkedin.com/in/tony-stark-3205122a4",
+        "name": "LInkedin"
+      }
+    ],
     "en": {
       "title": "CEO & Inventor · Stark Enterprises",
       "tagline": "Building technology for a better future.",
