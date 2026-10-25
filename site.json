@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "profile": {
+    "name": "Your Name",
+    "title": "Student · Your Study Program",
+    "tagline": "Tell the world what you create.",
+    "about": "Write a short introduction about yourself and your interests.",
+    "location": "",
+    "institution": "",
+    "institutionUrl": "",
+    "avatar": "",
+    "banner": "",
+    "brandingRound": "",
+    "brandingSquare": "",
+    "education": {},
+    "certifications": [],
+    "contacts": [],
+    "en": {
+      "title": "Student · Your Study Program",
+      "tagline": "Tell the world what you create.",
+      "about": "Write a short introduction about yourself and your interests."
+    }
+  },
+  "experiences": [],
+  "projects": [],
+  "publications": [],
+  "otherActivities": [],
+  "slides": []
+}

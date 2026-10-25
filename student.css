@@ -1,0 +1,5 @@
+.student-logo{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:#e5f9f4;color:#187b76;border-radius:10px;font-size:21px;font-weight:900}.brand{gap:10px}a[href="#"]{cursor:default}body .hero h1{overflow-wrap:anywhere}
+:root{--student-accent:#187d79}a:hover{color:var(--student-accent)}
+
+/* Palette customizations — the website still uses its clean navy layout. */
+:root{--student-accent:#187d79} .topbar a:hover,.content-section .section-label,.panel .section-label,.hero .hero-eyebrow,.contact-links a:hover{color:var(--student-accent)!important}.lang-switch button.active,.btn.btn-primary,.v10-more-button:hover{background-color:var(--student-accent)!important;border-color:var(--student-accent)!important}.v10-more-button{color:var(--student-accent)}

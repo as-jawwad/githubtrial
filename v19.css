@@ -1,0 +1,184 @@
+/* V19: compact partner and organization icon; no card overflow */
+.project-card .v19-partner{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-top:auto;padding-top:8px;color:#305b62;font-size:12px;font-weight:650;min-width:0;line-height:1.35}
+.v19-partner span{overflow-wrap:anywhere;text-align:right}
+.v19-small-logo{height:30px!important;width:30px!important;object-fit:contain!important;flex-shrink:0;border-radius:6px;background:#fff;border:1px solid #d7e5e6;padding:2px}
+.v19-detail-partner{display:flex;align-items:center;gap:8px;font-size:14px;color:#31565f}
+.v18-activity-mark img{width:29px!important;height:29px!important;max-width:29px!important;max-height:29px!important;object-fit:contain!important}
+@media(max-width:620px){.project-card .v19-partner{font-size:11px}.v19-small-logo{width:27px!important;height:27px!important}}
+
+/* V20 — tidy project partner block; logo before text at the left */
+.project-card .v19-partner{
+  display:flex;align-items:center;justify-content:flex-start;
+  gap:9px;min-width:0;margin:12px 17px 0;padding:12px 0 0;
+  border-top:1px solid #edf1f2;text-align:left;
+  color:#305b62;font-size:11.5px;font-weight:650;line-height:1.4;
+}
+.project-card .v19-partner span{
+  min-width:0;overflow-wrap:break-word;word-break:normal;text-align:left;
+}
+.project-card .v19-partner img.v19-small-logo{
+  width:28px!important;height:28px!important;flex:0 0 28px;
+  object-fit:contain!important;border-radius:6px;
+}
+/* V20 — education follows affiliation / location in the left-side profile column */
+.v13-facts .v20-education{
+  margin:13px 0 0;padding-top:0;
+  border-top:0;max-width:100%;min-width:0;
+}
+.v13-facts .v20-education[hidden]{display:none!important}
+.v13-facts .v16-education-grid{gap:8px;align-items:stretch}
+.v13-facts .v16-degree{
+  min-width:0;min-height:0;padding:10px 9px;
+  border-radius:9px;text-align:left;
+}
+.v13-facts .v16-degree-title{
+  font-size:10px;line-height:1.4;margin-bottom:8px;
+}
+.v13-facts .v16-degree-body{
+  display:flex;flex-direction:row;align-items:flex-start;gap:7px;
+}
+.v13-facts .v16-degree-logo{
+  display:block;flex:0 0 28px;width:28px;height:28px;
+  margin:0;padding:2px;object-fit:contain;
+}
+.v13-facts .v16-degree-info{gap:3px;min-width:0;overflow-wrap:break-word}
+.v13-facts .v16-degree-info strong{font-size:10.5px;line-height:1.35;overflow-wrap:break-word}
+.v13-facts .v16-degree-info span{font-size:10px;line-height:1.35}
+.v13-facts .v16-degree-info small{font-size:9.5px;line-height:1.3}
+.v13-facts .tags{margin-top:14px}
+@media(max-width:520px){
+  .v13-facts .v16-education-grid{gap:7px}
+  .v13-facts .v16-degree{padding:9px 7px}
+  .v13-facts .v16-degree-body{gap:6px}
+  .v13-facts .v16-degree-logo{flex-basis:24px;width:24px;height:24px}
+  .v13-facts .v16-degree-info strong{font-size:10px}
+  .v13-facts .v16-degree-info span{font-size:9.5px}
+  .project-card .v19-partner{margin-left:15px;margin-right:15px}
+}
+
+/* V21: compact project partner badge on cover; never create a second partner row. */
+.project-cover>.v21-partner-badge{
+  position:absolute;z-index:3;left:12px;bottom:12px;
+  display:inline-flex;align-items:center;gap:7px;
+  max-width:calc(100% - 24px);min-height:30px;
+  padding:5px 9px;background:#fff;color:#24535b;
+  border:1px solid rgba(215,229,230,.85);
+  border-radius:8px;box-shadow:0 2px 10px rgba(17,43,59,.12);
+  text-align:left;font-weight:700;font-size:11px;line-height:1.3;
+  pointer-events:none;
+}
+.project-cover>.v21-partner-badge .v21-partner-logo{
+  width:25px!important;height:25px!important;flex:0 0 25px;
+  padding:1px;border:0;border-radius:3px;background:#fff;
+  object-fit:contain!important;
+}
+.project-cover>.v21-partner-badge .v21-partner-name{
+  min-width:0;white-space:normal;overflow-wrap:anywhere;text-align:left;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
+/* V21: Academic Portal. Existing grade table styles remain in styles.css. */
+.v21-ac-topbar .academic-bar{gap:20px}
+.v21-ac-top-actions{display:flex;align-items:center;gap:14px;margin-left:auto}
+.v21-ac-top-actions .lang-switch{display:flex;align-items:center;gap:3px;background:#f0f5f6;border:1px solid #d4e2e5;border-radius:10px;padding:4px}
+.v21-ac-top-actions .lang-switch button{border:0;border-radius:7px;padding:7px 11px;font-size:12px;font-weight:750;color:#607984;background:transparent;cursor:pointer}
+.v21-ac-top-actions .lang-switch button.active{color:#fff;background:#173f4b}
+.v21-ac-top-actions .lang-switch button:focus-visible{outline:2px solid #3caca6;outline-offset:2px}
+.v21-ac-nav{font-size:12px;font-weight:700;color:#466771;white-space:nowrap}
+.v21-ac-main{max-width:1100px}
+.v21-ac-hero{padding:48px 0 20px}
+.v21-ac-hero h1{margin:12px 0 0}
+.v21-ac-search{padding-top:20px!important}
+.v21-ac-search-card{background:#fff;border:1px solid #e0e8e9;border-radius:14px;padding:27px;margin-top:14px}
+.v21-ac-search-card label{display:block;font-size:12px;color:#345965;font-weight:750;margin-bottom:10px}
+.v21-ac-search-form{display:flex;align-items:stretch;gap:10px}
+.v21-ac-search-form input{flex:1;min-width:0;border:1px solid #ccdcdf;border-radius:8px;padding:12px 15px;font-size:14px;color:#173343;background:#fff;outline-offset:2px}
+.v21-ac-search-form button{border:0;border-radius:8px;background:#176b67;color:white;padding:10px 22px;font-weight:750;font-size:13px;white-space:nowrap;cursor:pointer}
+.v21-ac-search-form button:hover{background:#135e5a}
+.v21-ac-search-form button:focus-visible{outline:2px solid #3b9e97;outline-offset:3px}
+.v21-ac-search-response{margin-top:15px;padding:13px 16px;border:1px solid #bfdad7;background:#f1f8f7;color:#275b60;border-radius:8px;font-size:13px;line-height:1.6}
+.v21-ac-search-response[hidden]{display:none!important}
+.v21-ac-search-note{color:#82949b;font-size:11px;margin-top:10px}
+.v21-ac-grades{padding-top:35px!important}
+.v21-ac-grades .section-heading{margin-bottom:14px}
+.v21-ac-grades .section-heading>div{width:100%}
+.v21-ac-grades .grade-picker{margin-bottom:16px}
+.v21-ac-footer .footer-inner{justify-content:flex-end}
+@media (max-width:620px){
+ .v21-ac-topbar .academic-bar{flex-wrap:nowrap;gap:10px;padding-top:8px;padding-bottom:8px}
+ .v21-ac-topbar .v12-academic-brand .v12-brand-title{font-size:12px;line-height:1.2}
+ .v21-ac-top-actions{gap:8px}
+ .v21-ac-nav{display:none}
+ .v21-ac-top-actions .lang-switch button{padding:7px 9px;font-size:11px}
+ .v21-ac-search-card{padding:18px}
+ .v21-ac-search-form{flex-direction:column}
+ .v21-ac-search-form button{width:100%;padding:11px 15px}
+ .v21-ac-hero{padding:27px 0 14px}
+ .v21-ac-search{padding-top:16px!important}
+ .v21-ac-grades{padding-top:30px!important}
+}
+
+/* V22 — institution link, compact 24px logo on right */
+#profile-institution.institution-link{display:inline-flex;align-items:center;justify-content:flex-start;flex-wrap:wrap;gap:6px 7px;max-width:100%;min-width:0;text-decoration:none}
+#profile-institution .institution-title{min-width:0;overflow-wrap:break-word}
+#profile-institution .v22-institution-logo{width:24px!important;height:24px!important;max-width:24px;max-height:24px;object-fit:contain!important;flex:0 0 24px;padding:2px;background:#fff;border:1px solid #d9e9e8;border-radius:5px}
+#profile-institution .v22-institution-logo[hidden]{display:none!important}
+#profile-institution:hover .institution-title{text-decoration:underline;text-underline-offset:3px}
+@media(max-width:540px){#profile-institution .v22-institution-logo{width:21px!important;height:21px!important;flex-basis:21px}}
+
+/* V23: clearer grade availability information, compact academic layout */
+.academic-body .v21-ac-main{padding-top:20px!important}
+.academic-body .v21-ac-search{margin-top:0!important}
+.grade-summary .v23-expiry-note{font-size:12px;color:#456a70;white-space:normal;text-align:right;max-width:330px;line-height:1.5}
+.grades-table th,.grades-table td{white-space:nowrap}
+@media(max-width:700px){.grade-summary{display:flex;flex-direction:column;align-items:flex-start;gap:7px}.grade-summary .v23-expiry-note{text-align:left;max-width:none}}
+
+/* V24 — shared branding and lightweight Academic Portal */
+.institution-link{display:inline-flex!important;align-items:center;justify-content:flex-start;gap:8px;flex-wrap:wrap;text-decoration:none}
+.v24-affiliation-logo{width:26px!important;height:26px!important;object-fit:contain;flex:none;background:#fff;border:1px solid #e1e8e8;border-radius:5px;padding:2px}
+.v24-affiliation-arrow{font-size:13px;color:#277c78}
+.v24-logo-preview img{max-width:85px;max-height:85px;object-fit:contain}
+.v24-ac-grade select{min-width:220px;max-width:100%;font-size:14px}
+.v24-spin{display:inline-flex;align-items:center;gap:11px;padding:16px 0;font-size:13px;color:#60818a}
+.v24-spin:before{content:"";width:16px;height:16px;border:2px solid #d6e4e5;border-top-color:#18827e;border-radius:50%;animation:v24spin .8s linear infinite}
+@keyframes v24spin{to{transform:rotate(360deg)}}
+.v24-ac-grade .grade-summary{padding:14px 17px}
+.v24-ac-grade .grades-table th,.v24-ac-grade .grades-table td{padding:11px 12px;font-size:12px}
+.v24-ac-grade .grade-summary strong{font-size:14px}
+.v24-tool-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.v24-tool-list .tool-card{display:grid;grid-template-columns:42px minmax(0,1fr);gap:8px 12px;align-items:start;padding:19px;background:#fff;border:1px solid #dae5e7;border-radius:14px}
+.v24-tool-list .tool-icon{width:40px;height:40px}
+.v24-tool-list .tool-body{min-width:0}
+.v24-tool-list .v17-request-button{grid-column:2;justify-self:start;white-space:nowrap;width:auto!important;min-height:35px;padding:7px 13px}
+.v24-tool-list .tags{gap:5px}
+.v24-tool-list .tool-card .tool-body p{font-size:13px}
+.v24-ac-main{padding-top:24px}
+.v24-ac-main .content-section{margin-top:22px}
+@media(max-width:690px){.v24-tool-list{grid-template-columns:1fr}.v24-tool-list .tool-card{padding:15px}.v24-ac-grade .table-scroll{overflow:auto}}
+
+/* V25 — high contrast time on dark grade header, modest responsive header. */
+.v24-ac-grade .grade-summary .v23-expiry-note,
+.grade-summary .v23-expiry-note{color:#ffffff!important;opacity:1!important;font-weight:600;}
+.v24-ac-grade .grade-summary .v23-expiry-note{max-width:380px;}
+
+/* V27: only one external link arrow, provided by HTML */
+#profile-institution::after,#profile-institution .institution-title::after{content:none!important;display:none!important;}
+
+/* V28: education credentials and contact icons */
+.v28-certifications{display:flex;gap:6px;flex-wrap:wrap;margin:11px 0 12px;align-items:stretch}
+.v28-certifications[hidden]{display:none!important}
+.v28-cert-card{box-sizing:border-box;display:inline-flex;align-items:center;gap:7px;border:1px solid #d7e4e6;background:#f8fbfa;color:#214852;text-decoration:none;border-radius:8px;padding:8px 10px;max-width:100%;font-size:11px;line-height:1.4}
+.v28-cert-card img{height:25px;width:25px;object-fit:contain;flex-shrink:0}
+.v28-cert-card span{min-width:0;display:flex;flex-direction:column;gap:1px;overflow-wrap:anywhere}
+.v28-cert-card strong{font-size:11px}.v28-cert-card small{font-size:9.5px;color:#67838b}
+.v28-cert-card[href]:hover{border-color:#6eabae;background:#eff7f5}
+.v28-contact-icon{display:flex;justify-content:center;align-items:center}
+.v28-contact-icon img{width:28px;height:28px;max-height:28px;object-fit:contain}
+
+
+/* V29 — certifications use a stable grid, no width changes due to long names */
+.v28-certifications{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;gap:8px;width:100%}
+.v28-cert-card{width:100%;min-width:0;max-width:100%;display:flex!important;align-items:center;gap:9px;overflow:hidden}
+.v28-cert-card img{width:32px;height:32px;flex:0 0 32px;object-fit:contain}
+.v28-cert-card span{min-width:0;overflow-wrap:anywhere;word-break:normal}
+.v28-cert-card strong,.v28-cert-card small{white-space:normal;overflow-wrap:anywhere;line-height:1.4}
+@media(max-width:680px){.v28-certifications{grid-template-columns:1fr!important}.v28-cert-card{padding:10px 12px}}
