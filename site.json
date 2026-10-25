@@ -10,8 +10,6 @@
     "institutionUrl": "",
     "avatar": "",
     "banner": "",
-    "brandingRound": "",
-    "brandingSquare": "",
     "education": {},
     "certifications": [],
     "contacts": [],
@@ -19,7 +17,10 @@
       "title": "Student · Your Study Program",
       "tagline": "Tell the world what you create.",
       "about": "Write a short introduction about yourself and your interests."
-    }
+    },
+    "brandingRound": "",
+    "brandingSquare": "",
+    "themeColor": "#cd8179"
   },
   "experiences": [],
   "projects": [],
