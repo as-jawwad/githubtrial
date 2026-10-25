@@ -1,5 +1,73 @@
 {
-  "version": 1,
+  "version": 4,
+  "sections": [
+    {
+      "key": "profile",
+      "title": "Profile",
+      "titleEn": "Profile",
+      "on": true,
+      "order": 0
+    },
+    {
+      "key": "education",
+      "title": "Pendidikan",
+      "titleEn": "Education",
+      "on": true,
+      "order": 1
+    },
+    {
+      "key": "certifications",
+      "title": "Sertifikasi",
+      "titleEn": "Certifications",
+      "on": true,
+      "order": 2
+    },
+    {
+      "key": "experiences",
+      "title": "Pengalaman Profesional",
+      "titleEn": "Professional Experience",
+      "on": true,
+      "order": 3
+    },
+    {
+      "key": "projects",
+      "title": "Proyek & Kajian",
+      "titleEn": "Projects & Studies",
+      "on": true,
+      "order": 4
+    },
+    {
+      "key": "publications",
+      "title": "Publikasi",
+      "titleEn": "Publications",
+      "on": true,
+      "order": 5
+    },
+    {
+      "key": "otherActivities",
+      "title": "Kegiatan Lain",
+      "titleEn": "Other Activities",
+      "on": true,
+      "order": 6
+    },
+    {
+      "key": "slides",
+      "title": "Galeri",
+      "titleEn": "Gallery",
+      "on": true,
+      "order": 7
+    },
+    {
+      "key": "contacts",
+      "title": "Kontak",
+      "titleEn": "Contact",
+      "on": true,
+      "order": 8
+    }
+  ],
+  "sharing": {
+    "categories": []
+  },
   "profile": {
     "name": "Budi XiXixi",
     "title": "Student · Your Study Program",
@@ -21,7 +89,7 @@
     "institutionIcon": "assets/media/56bcb59e-f1d4-43b2-89ab-0caf451f12d0.webp",
     "brandingRound": "",
     "brandingSquare": "",
-    "themeColor": "#cd8179"
+    "themeColor": "#ec5b4b"
   },
   "experiences": [],
   "projects": [],
