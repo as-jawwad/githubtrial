@@ -1,81 +1,5 @@
 {
   "version": 5,
-  "profile": {
-    "name": "Tony Stark",
-    "title": "CEO & Inventor · Stark Enterprises",
-    "tagline": "Membangun teknologi untuk masa depan yang lebih baik.",
-    "about": "Saya Tony Stark. Contoh profil portofolio untuk mempelajari cara mengisi pendidikan, pengalaman, proyek, dan karya yang dapat dibagikan. Ganti semua informasi demo dengan data Anda sendiri.",
-    "location": "New York, United States",
-    "institution": "Marvel",
-    "institutionUrl": "https://www.marvel.com/",
-    "avatar": "",
-    "banner": "",
-    "brandingRound": "",
-    "brandingSquare": "",
-    "education": {
-      "master": {
-        "institution": "Massachusetts Institute of Technology (MIT)",
-        "major": "Teknologi dan Rekayasa",
-        "majorEn": "Technology and Engineering",
-        "year": "2005",
-        "logo": "https://logospng.org/download/mit/logo-mit-1024.png"
-      }
-    },
-    "certifications": [],
-    "contacts": [],
-    "en": {
-      "title": "CEO & Inventor · Stark Enterprises",
-      "tagline": "Building technology for a better future.",
-      "about": "I am Tony Stark. This is a sample portfolio showing how to add education, experience, projects and shareable work. Replace every demo detail with your own information."
-    },
-    "themeColor": "#187d79",
-    "institutionIcon": "https://thewaltdisneycompany.com/app/uploads/2024/07/1920_marvel-studios-logo.jpg"
-  },
-  "experiences": [
-    {
-      "id": "demo-stark-ceo",
-      "role": "CEO",
-      "organization": "Stark Enterprises",
-      "companyWebsite": "https://www.marvel.com/",
-      "companyIcon": "https://thewaltdisneycompany.com/app/uploads/2024/07/1920_marvel-studios-logo.jpg",
-      "period": "2008 – Sekarang",
-      "summary": "Memimpin pengembangan teknologi, inovasi energi, dan koordinasi tim riset.",
-      "contributions": [
-        "Memimpin tim penelitian dan pengembangan.",
-        "Mengembangkan solusi teknologi yang berfokus pada inovasi."
-      ],
-      "en": {
-        "role": "CEO",
-        "summary": "Leading technology development, energy innovation and research teams.",
-        "contributions": [
-          "Leading research and development teams.",
-          "Developing innovative technology solutions."
-        ]
-      }
-    }
-  ],
-  "projects": [
-    {
-      "id": "demo-avengers-project",
-      "title": "Avengers",
-      "description": "Memimpin tim Avengers dalam koordinasi misi, strategi, dan kolaborasi lintas keahlian.",
-      "category": "Kepanitiaan",
-      "role": "Leader",
-      "partnerName": "Avengers",
-      "cover": "assets/demo/avengers-team.svg",
-      "period": "2012 – Sekarang",
-      "outputs": "Koordinasi tim lintas bidang dan pelaksanaan berbagai misi.",
-      "en": {
-        "title": "Avengers",
-        "description": "Leading the Avengers team in mission coordination, strategy and cross-disciplinary collaboration.",
-        "role": "Leader",
-        "outputs": "Cross-functional team coordination and successful mission execution."
-      }
-    }
-  ],
-  "publications": [],
-  "otherActivities": [],
-  "slides": [],
   "sections": [
     {
       "key": "profile",
@@ -172,5 +96,80 @@
       }
     ]
   },
-  "translationMeta": {}
+  "profile": {
+    "name": "Tony Stark",
+    "title": "CEO & Inventor · Stark Enterprises",
+    "tagline": "Membangun teknologi untuk masa depan yang lebih baik.",
+    "about": "Saya Tony Stark. Contoh profil portofolio untuk mempelajari cara mengisi pendidikan, pengalaman, proyek, dan karya yang dapat dibagikan. Ganti semua informasi demo dengan data Anda sendiri.",
+    "location": "New York, United States",
+    "institution": "Marvel",
+    "institutionUrl": "https://www.marvel.com/",
+    "avatar": "",
+    "banner": "",
+    "education": {
+      "master": {
+        "institution": "Massachusetts Institute of Technology (MIT)",
+        "major": "Teknologi dan Rekayasa",
+        "majorEn": "Technology and Engineering",
+        "year": "2005",
+        "logo": "https://logospng.org/download/mit/logo-mit-1024.png"
+      }
+    },
+    "certifications": [],
+    "contacts": [],
+    "en": {
+      "title": "CEO & Inventor · Stark Enterprises",
+      "tagline": "Building technology for a better future.",
+      "about": "I am Tony Stark. This is a sample portfolio showing how to add education, experience, projects and shareable work. Replace every demo detail with your own information."
+    },
+    "institutionIcon": "https://thewaltdisneycompany.com/app/uploads/2024/07/1920_marvel-studios-logo.jpg",
+    "brandingRound": "",
+    "brandingSquare": "",
+    "themeColor": "#187d79"
+  },
+  "experiences": [
+    {
+      "id": "demo-stark-ceo",
+      "role": "CEO",
+      "organization": "Stark Enterprises",
+      "companyWebsite": "https://www.marvel.com/",
+      "companyIcon": "https://thewaltdisneycompany.com/app/uploads/2024/07/1920_marvel-studios-logo.jpg",
+      "period": "2008 – Sekarang",
+      "summary": "Memimpin pengembangan teknologi, inovasi energi, dan koordinasi tim riset.",
+      "contributions": [
+        "Memimpin tim penelitian dan pengembangan.",
+        "Mengembangkan solusi teknologi yang berfokus pada inovasi."
+      ],
+      "en": {
+        "role": "CEO",
+        "summary": "Leading technology development, energy innovation and research teams.",
+        "contributions": [
+          "Leading research and development teams.",
+          "Developing innovative technology solutions."
+        ]
+      }
+    }
+  ],
+  "projects": [
+    {
+      "id": "demo-avengers-project",
+      "title": "Avengers",
+      "description": "Memimpin tim Avengers dalam koordinasi misi, strategi, dan kolaborasi lintas keahlian.",
+      "category": "Kepanitiaan",
+      "role": "Leader",
+      "partnerName": "Avengers",
+      "cover": "assets/demo/avengers-team.svg",
+      "period": "2012 – Sekarang",
+      "outputs": "Koordinasi tim lintas bidang dan pelaksanaan berbagai misi.",
+      "en": {
+        "title": "Avengers",
+        "description": "Leading the Avengers team in mission coordination, strategy and cross-disciplinary collaboration.",
+        "role": "Leader",
+        "outputs": "Cross-functional team coordination and successful mission execution."
+      }
+    }
+  ],
+  "publications": [],
+  "otherActivities": [],
+  "slides": []
 }
