@@ -1,27 +1,124 @@
 <!doctype html>
 <html lang="id"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="index,follow">
-<meta name="theme-color" content="#112b3b"><meta name="description" content="Portofolio pribadi dan CV profesional.">
-<link rel="icon" type="image/png" href="favicon.svg"><link rel="icon" href="favicon.svg" sizes="any">
-<title>My Portfolio</title><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="v7.css"><link rel="stylesheet" href="v9.css"><link rel="stylesheet" href="v10.css?v=13"><link rel="stylesheet" href="v12.css?v=13"><link rel="stylesheet" href="v13.css?v=13"><link rel="stylesheet" href="v14.css?v=14"><link rel="stylesheet" href="v15.css?v=15"><link rel="stylesheet" href="v16.css?v=16"><link rel="stylesheet" href="v17.css?v=17"><link rel="stylesheet" href="v18.css?v=18"><link rel="stylesheet" href="v19.css?v=29"><link rel="stylesheet" href="student.css"><link rel="stylesheet" href="V4_public.css"><link rel="stylesheet" href="V6_public.css"></head>
+<meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
+<meta name="theme-color" content="#112b3b"><meta name="description" content="Portofolio profesional dosen, peneliti, dan konsultan lingkungan.">
+<link rel="icon" type="image/png" href="asj-square.png?v=13"><link rel="icon" href="favicon.ico?v=13" sizes="any">
+<title>Professional Portfolio</title><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="v7.css"><link rel="stylesheet" href="v9.css"><link rel="stylesheet" href="v10.css?v=13"><link rel="stylesheet" href="v12.css?v=13"><link rel="stylesheet" href="v13.css?v=13"><link rel="stylesheet" href="v14.css?v=14"><link rel="stylesheet" href="v15.css?v=15"><link rel="stylesheet" href="v16.css?v=16"><link rel="stylesheet" href="v17.css?v=17"><link rel="stylesheet" href="v18.css?v=18"><link rel="stylesheet" href="v19.css?v=29"><style>
+.v36-consent{display:flex;align-items:flex-start;gap:8px;margin:12px 0;font-size:12px;line-height:1.45;color:#536c78}.v36-consent input{width:auto;flex:0 0 auto;margin-top:3px}.v36-download-link{display:inline-flex;align-items:center;gap:8px;margin-top:11px;padding:11px 15px;border-radius:9px;background:#177c77;color:#fff!important;font-weight:750;text-decoration:none}.v36-download-link:hover{background:#0d615e}
+
+/* V40 — isolated guestbook consent: prevent legacy #toolRequestModal input width:100%.
+   Keep checkbox and copy inside ONE clickable label; no nested grid track can stretch. */
+#toolRequestModal .contact-modal-card {
+  width:min(520px, 100%) !important;
+  min-width:0 !important;
+  max-width:100% !important;
+  overflow-x:hidden !important;
+  box-sizing:border-box !important;
+}
+#toolRequestModal #toolRequestForm {
+  width:100%; min-width:0; max-width:100%; box-sizing:border-box;
+}
+#toolRequestModal #toolRequestForm .v40-guestbook-consent {
+  display:flex !important;
+  flex-direction:row !important;
+  flex-wrap:nowrap !important;
+  align-items:flex-start !important;
+  justify-content:flex-start !important;
+  gap:10px !important;
+  width:100% !important;
+  min-width:0 !important;
+  max-width:100% !important;
+  margin:12px 0 6px !important;
+  padding:0 !important;
+  line-height:1.55 !important;
+  color:#536c78 !important;
+  font-size:12px !important;
+  font-weight:500 !important;
+  text-align:left !important;
+  white-space:normal !important;
+  box-sizing:border-box !important;
+  cursor:pointer;
+}
+#toolRequestModal #toolRequestForm .v40-guestbook-consent input[type="checkbox"] {
+  display:block !important;
+  position:static !important;
+  flex:0 0 17px !important;
+  width:17px !important;
+  min-width:17px !important;
+  max-width:17px !important;
+  height:17px !important;
+  min-height:17px !important;
+  max-height:17px !important;
+  margin:2px 0 0 !important;
+  padding:0 !important;
+  box-sizing:border-box !important;
+  appearance:auto !important;
+  -webkit-appearance:checkbox !important;
+  accent-color:#187d79;
+  border-radius:3px;
+}
+#toolRequestModal #toolRequestForm .v40-guestbook-consent .v40-consent-text {
+  display:block !important;
+  flex:1 1 0 !important;
+  min-width:0 !important;
+  max-width:100% !important;
+  width:auto !important;
+  margin:0 !important;
+  padding:0 !important;
+  overflow-wrap:break-word !important;
+  word-break:normal !important;
+  white-space:normal !important;
+  text-align:left !important;
+}
+@media (max-width:540px) {
+  #toolRequestModal { padding:12px !important; }
+  #toolRequestModal .contact-modal-card { padding:24px 20px !important; }
+  #toolRequestModal #toolRequestForm .v40-guestbook-consent { gap:9px !important; }
+}
+</style></head>
 <body data-page="portfolio">
 <header class="topbar"><div class="shell topbar-inner">
-<a class="brand" href="index.html"><span class="student-logo" aria-hidden="true">✦</span><span class="v12-brand-title">My Portfolio</span></a>
-<nav class="topnav" id="topNav"><a data-i18n="navExperience" href="#experience">Pengalaman</a><a data-i18n="navProjects" href="#projects">Proyek</a><a data-i18n="navPubs" href="#publications">Publikasi</a><a data-i18n="navOtherActivities" href="#other-activities">Other Activities</a><a data-i18n="navContact" href="#contact">Kontak</a></nav>
+<a class="brand" href="index.html"><img class="nav-favicon v12-round-logo" src="asj-round.png?v=13" alt="asj"><span class="v12-brand-title">My Portfolio</span></a>
+<nav class="topnav" id="topNav"><a data-i18n="navExperience" href="#experience">Pengalaman</a><a data-i18n="navProjects" href="#projects">Proyek</a><a data-i18n="navPubs" href="#publications">Publikasi</a><a data-i18n="navOtherActivities" href="#other-activities">Other Activities</a><a data-i18n="navContact" href="#contact">Kontak</a><a class="nav-portal" href="academic">Academic Portal</a></nav>
 <div class="nav-actions"><div class="lang-switch" role="group" aria-label="Pilih bahasa"><button type="button" data-lang="id" class="active">ID</button><button type="button" data-lang="en">EN</button></div><button id="navToggle" class="menu-button" aria-label="Menu navigasi">☰</button></div>
 </div></header>
-<main><section class="hero"><div class="shell hero-inner"><div class="hero-text"><span class="eyebrow hero-eyebrow"><span class="dot"></span> <span data-i18n="heroLabel">PROFIL</span></span><h1 id="profile-name">My Portfolio</h1><p class="hero-role" id="profile-title"></p><p class="hero-tagline" id="profile-tagline"></p></div><div class="hero-avatar" id="profile-avatar"><span>AJ</span></div></div></section>
+<main><section class="hero"><div class="shell hero-inner"><div class="hero-text"><span class="eyebrow hero-eyebrow"><span class="dot"></span> <span data-i18n="heroLabel">PROFIL PROFESIONAL</span></span><h1 id="profile-name">Academic Portfolio</h1><p class="hero-role" id="profile-title"></p><p class="hero-tagline" id="profile-tagline"></p></div><div class="hero-avatar" id="profile-avatar"><span>AJ</span></div></div></section>
 <section class="shell page-content">
 
-<article class="panel about-panel v7-about v13-about"><div class="section-label" data-i18n="aboutLabel">TENTANG SAYA</div><h2 data-i18n="aboutTitle">Tentang saya</h2><p id="about-text"></p><div class="v13-about-lower"><div class="v13-facts"><div class="profile-facts"><div><span data-i18n="affiliation">Institusi</span><a id="profile-institution" class="institution-link" href="#" target="_blank" rel="noopener noreferrer" aria-label="Website institusi"></a></div><div><span data-i18n="basedIn">Lokasi</span><strong id="profile-location"></strong></div></div><section class="v16-education v20-education" aria-label="Riwayat pendidikan"><div class="v16-education-grid" id="education-grid"></div></section><div id="certification-list" class="v28-certifications" hidden></div></div><section class="slideshow-block v13-slideshow" aria-label="Dokumentasi kegiatan"><div id="heroSlideshow" class="slideshow"><div class="slide-empty"><span data-i18n="slideEmpty">Dokumentasi kegiatan akan ditampilkan di sini.</span></div></div><div class="slide-bottom"><div class="slide-controls"><button type="button" id="slidePrev" aria-label="Sebelumnya">‹</button><div id="slideDots" class="slide-dots"></div><button type="button" id="slideNext" aria-label="Berikutnya">›</button></div></div></section></div></article>
+<article class="panel about-panel v7-about v13-about"><div class="section-label" data-i18n="aboutLabel">TENTANG SAYA</div><h2 data-i18n="aboutTitle">Tentang saya</h2><p id="about-text"></p><div class="v13-about-lower"><div class="v13-facts"><div class="profile-facts"><div><span data-i18n="affiliation">Institusi</span><a id="profile-institution" class="institution-link" href="https://teklingk.upnjatim.ac.id/jawwad/" target="_blank" rel="noopener noreferrer" aria-label="Profil di website Teknik Lingkungan UPN Veteran Jawa Timur"></a></div><div><span data-i18n="basedIn">Lokasi</span><strong id="profile-location"></strong></div></div><section class="v16-education v20-education" aria-label="Riwayat pendidikan"><div class="v16-education-grid" id="education-grid"></div></section><div id="certification-list" class="v28-certifications" hidden></div></div><section class="slideshow-block v13-slideshow" aria-label="Dokumentasi kegiatan"><div id="heroSlideshow" class="slideshow"><div class="slide-empty"><span data-i18n="slideEmpty">Dokumentasi kegiatan akan ditampilkan di sini.</span></div></div><div class="slide-bottom"><div class="slide-controls"><button type="button" id="slidePrev" aria-label="Sebelumnya">‹</button><div id="slideDots" class="slide-dots"></div><button type="button" id="slideNext" aria-label="Berikutnya">›</button></div></div></section></div></article>
 <section id="experience" class="content-section"><div class="section-heading"><div><span class="section-label" data-i18n="careerLabel">PENGALAMAN</span><h2 data-i18n="career">Pengalaman Profesional</h2></div></div><div id="experience-list" class="experience-list"></div></section>
-<section id="projects" class="content-section"><div class="section-heading"><div><span class="section-label" data-i18n="workLabel">PROYEK & KAJIAN</span><h2 data-i18n="work">Proyek & Kepanitiaan</h2></div></div><div id="project-list" class="project-grid"></div></section>
+<section id="projects" class="content-section"><div class="section-heading"><div><span class="section-label" data-i18n="workLabel">PROYEK & KAJIAN</span><h2 data-i18n="work">Proyek & Kajian</h2></div></div><div id="project-list" class="project-grid"></div></section>
 <section id="publications" class="content-section"><div class="section-heading"><div><span class="section-label" data-i18n="researchLabel">RISET</span><h2 data-i18n="research">Publikasi</h2></div></div><div id="publication-list" class="publication-list"></div></section>
 <section id="other-activities" class="content-section"><div class="section-heading"><div><span class="section-label" data-i18n="otherActivitiesLabel">KEGIATAN LAIN</span><h2 data-i18n="otherActivitiesTitle">Other Activities</h2></div></div><div id="other-activities-list" class="v18-activities-list"></div></section>
 
 <section id="contact" class="content-section contact-section"><div><span class="section-label" data-i18n="contactLabel">KONTAK</span><h2>Let's Connect</h2></div><div id="contact-links" class="contact-links v7-contact-links"></div></section>
 </section></main>
-<footer class="site-footer"><div class="shell footer-inner"><span>Powered by AS.Portfolio Maker · by as.jawwad<span id="year" hidden></span></span></div></footer>
+<footer class="site-footer"><div class="shell footer-inner"><span>© 2026 as.jawwad<span id="year" hidden></span></span></div></footer>
 <div id="detailModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="modal-backdrop" data-close></div><div class="modal-card"><button type="button" class="modal-close" data-close aria-label="Tutup">×</button><div id="modalContent"></div></div></div>
-<script src="common.js"></script><script src="V6_portfolio.js"></script></body></html>
+<div id="contactModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="contactModalTitle"><div class="modal-backdrop" data-contact-close></div><div class="modal-card contact-modal-card"><button class="modal-close" data-contact-close type="button" aria-label="Tutup">×</button><h2 id="contactModalTitle" data-i18n="messageTitle">Kirim Pesan</h2><p class="contact-intro" data-i18n="messageIntro">Silakan kirim pesan Anda. Saya akan merespons sesegera mungkin.</p><div id="contactNotReady" class="contact-not-ready" hidden>Form belum terhubung. Tambahkan URL Apps Script Contact pada Portfolio Manager.</div>
+<div id="contactResult" class="contact-result" role="status" aria-live="polite" hidden></div>
+<form id="contactForm" target="portfolioContactSubmit" method="post" accept-charset="UTF-8"><label for="senderMail" data-i18n="yourEmail">Email Anda</label><input id="senderMail" name="sender" type="email" autocomplete="email" required maxlength="254" placeholder="nama@example.com"><label for="subjectMail" data-i18n="subject">Subjek</label><input id="subjectMail" name="subject" required minlength="4" maxlength="160"><label for="bodyMail" data-i18n="message">Pesan</label><textarea id="bodyMail" name="message" required minlength="15" maxlength="5000" rows="6"></textarea><div class="honeypot" aria-hidden="true"><label>Company<input type="text" name="company" tabindex="-1" autocomplete="off"></label></div><input name="startedAt" id="contactStartedAt" type="hidden"><input name="requestId" id="contactRequestId" type="hidden"><div class="contact-info" id="contactHint" data-i18n="contactHint">Pengiriman diproses langsung di halaman ini.</div><button id="submitContact" class="btn btn-primary" type="submit" data-i18n="sendMessage">Kirim Pesan</button></form>
+</div></div>
+<div id="toolRequestModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="toolRequestTitle">
+  <div class="modal-backdrop" data-tool-close></div>
+  <div class="modal-card contact-modal-card">
+    <button class="modal-close" type="button" data-tool-close aria-label="Tutup">×</button>
+    <h2 id="toolRequestTitle">Request Download</h2>
+    <p id="toolRequestDescription" class="contact-intro"></p>
+    <div id="toolRequestFeedback" class="contact-result" role="status" aria-live="polite" hidden></div>
+    <form id="toolRequestForm" method="post" target="portfolioGuestbookSubmit">
+      <label for="toolRequesterName">Full Name</label><input id="toolRequesterName" name="fullName" required minlength="2" maxlength="100" autocomplete="name">
+      
+      <label for="toolRequesterOrg">Institution / Organization</label><input id="toolRequesterOrg" name="institution" required maxlength="150">
+      <label for="toolRequesterEmail">Email Address</label><input id="toolRequesterEmail" name="email" type="email" required maxlength="254" autocomplete="email">
+      <input type="hidden" name="action" value="tool_guestbook"><input type="hidden" name="toolId" id="toolRequestId">
+      <input type="hidden" name="requestId" id="toolRequestNonce"><input type="hidden" name="startedAt" id="toolStartedAt">
+      <label class="v40-guestbook-consent"><input type="checkbox" name="consent" value="yes" required><span class="v40-consent-text">Saya setuju nama, institusi, dan email dicatat untuk akses unduhan. Data tidak ditampilkan kepada publik.</span></label> <div class="honeypot" aria-hidden="true"><label>Company<input name="company" autocomplete="off" tabindex="-1"></label></div>
+      <button id="toolRequestSubmit" class="btn btn-primary" type="submit">Submit & Get Download Link</button>
+    </form>
+  </div>
+</div>
+<iframe name="portfolioGuestbookSubmit" class="contact-submit-frame" title="Tool Guestbook confirmation" tabindex="-1" aria-hidden="true"></iframe>
+<iframe id="contactSubmissionFrame" name="portfolioContactSubmit" title="Konfirmasi pengiriman pesan" tabindex="-1" class="contact-submit-frame" aria-hidden="true"></iframe>
+<script src="common.js?v=16"></script><script src="portfolio.js?v=36"></script></body></html>
